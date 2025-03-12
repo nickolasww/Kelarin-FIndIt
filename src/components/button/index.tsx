@@ -1,11 +1,19 @@
+import React from 'react'
 
+interface ButtonProps {
+  text: string;
+  className?: string;
 
-export default function Button () { 
-    return ( 
-        <section> 
-            <div> 
-                <h1>Button</h1>
-            </div>
-        </section>
-    )
 }
+
+const Button: React.FC<ButtonProps> = ({ text,className }) => {
+    return (
+        <button
+        className={className}
+      >
+        {text}
+      </button>
+  )
+}
+
+export default Button

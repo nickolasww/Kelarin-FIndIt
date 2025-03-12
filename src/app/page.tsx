@@ -1,13 +1,5 @@
-import Image from "next/image";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  return (
-    <section> 
-    <div className="">
-      <div> 
-
-      </div> 
-    </div>
-    </section>
-  );
+  return redirect("/home");
 }
