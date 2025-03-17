@@ -1,15 +1,19 @@
-import Hero from "@/app/home/partials/hero"
-import About from "@/app/home/partials/about"
-import Services from "@/app/home/partials/services"
+import Hero from "@/app/home/partials/hero";
+import About from "@/app/home/partials/about";
+import Services from "@/app/home/partials/services";
 
 const home = () => {
-    return (
-      <section className="">
+  return (
+    <section className="">
+      <div className="p-28">
         <Hero />
-        <About />
+      </div>
+      <About />
+      <div className="p-56">
         <Services />
-      </section>
-    );
-  };
-  
-  export default home ;
+      </div>
+    </section>
+  );
+};
+
+export default home;
