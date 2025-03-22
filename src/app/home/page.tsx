@@ -5,13 +5,13 @@ import Services from "@/app/home/partials/services";
 const home = () => {
   return (
     <section className="">
-      <div className="py-10">
+      <div className="pt-10 pb-20">
       <Hero />
       </div>
-      {/* <About />
-      <div className="pt-56 pb-20">
+      <About />
+      <div className="pt-42 pb-20">
       <Services />
-      </div> */}
+      </div>
     </section>
   );
 };
