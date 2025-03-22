@@ -18,8 +18,8 @@ export default function Services (){
                   "X Cannot upload videos",
                 ]}
                 buttonText="Your current Plan"
-                isCurrentPlan={true}
-                classname='text-lg text-center'
+                isCurrentPlan={false}
+                classname='text-lg text-center pb-2'
                 /> 
                 <Card
                 title="Nitro"
@@ -31,8 +31,8 @@ export default function Services (){
                   "✔️ Cannot upload videos",
                 ]}
                 buttonText="Upgrade to Nitro"
-                isCurrentPlan={false}
-                classname="text-lg pt-[22px] text-center "
+                isCurrentPlan={true}
+                classname="text-lg pt-[25px]  text-center pb-2"
                 /> 
             </div>
             </div>

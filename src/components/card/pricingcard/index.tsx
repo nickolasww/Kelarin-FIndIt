@@ -28,9 +28,9 @@ const PricingCard: React.FC<PricingCardProps> = ({ title, price, features, butto
         ))}
       </ul>
       <p className={classname}>
-        {priceParts[0]} <span className="text-purple-600 text-2xl font-semibold">{priceParts[1]}</span> {priceParts.slice(2).join(' ')} 
+        {priceParts[0]} <span className="text-purple-600 text-2xl font-semibold ">{priceParts[1]}</span> {priceParts.slice(2).join(' ')} 
       </p>
-      <button className={`w-full py-2 px-4 rounded-lg cursor-pointer ${isCurrentPlan ? 'bg-purple-600 text-white' : 'border border-gray-300'}`}>
+      <button className={`w-full py-3 px-4 rounded-lg cursor-pointer ${isCurrentPlan ? 'bg-purple-600 text-white font-semibold' : 'border-2 border-purple-600 text-purple-600 font-semibold '}`}>
         {buttonText}
       </button>
     </div>

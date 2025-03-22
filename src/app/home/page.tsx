@@ -6,11 +6,11 @@ const home = () => {
   return (
     <section className="">
       <div className="py-10">
-        <Hero />
+      <Hero />
       </div>
       <About />
       <div className="pt-56 pb-20">
-        <Services />
+      <Services />
       </div>
     </section>
   );
