@@ -26,9 +26,7 @@ export default function RootLayout({
       <body
         className={`${poppins.variable}  font-poppins relative `}
       >
-      {/* <Navbar/>  */}
         {children}
-      {/* <Footer/>  */}
       </body>
     </html>
   );
