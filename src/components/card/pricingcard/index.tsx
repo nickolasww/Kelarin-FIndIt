@@ -10,7 +10,7 @@ interface PricingCardProps {
 }
 
 const PricingCard: React.FC<PricingCardProps> = ({ title, price, features, buttonText, isCurrentPlan, classname }) => {
-  const priceParts = price.split(' '); // Memisahkan harga menjadi bagian-bagian
+  const priceParts = price.split(' ');
 
   return (
     <div className={`border rounded-lg p-6 ${isCurrentPlan ? 'border-black' : ''}`}>

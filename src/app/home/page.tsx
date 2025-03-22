@@ -8,10 +8,10 @@ const home = () => {
       <div className="py-10">
       <Hero />
       </div>
-      <About />
+      {/* <About />
       <div className="pt-56 pb-20">
       <Services />
-      </div>
+      </div> */}
     </section>
   );
 };
