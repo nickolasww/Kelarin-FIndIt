@@ -1,9 +1,11 @@
+'use client';
+
 import React from 'react';
 
 interface CustomInputProps {
   label: string;
   value: string;
-  type?: 'text' | 'password' | 'email';
+  type?: 'text' | 'password' | 'email' | 'fullname';
   classname ?: string;
 }
 

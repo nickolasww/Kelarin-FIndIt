@@ -14,14 +14,11 @@ export default function Login() {
       <div className="hidden lg:block lg:w-[40rem]">
         <div className="relative w-full h-screen flex justify-center">
           <div className="relative m-2 bg-gradient-to-br from-purple-200 to-purple-800 rounded-3xl p-8 shadow-2xl flex flex-col items-start justify-center">
-            {/* Logo di Pojok Kiri Atas */}
             <div className="absolute top-8 left-8 flex items-center">
-              <Image src={Logo} alt="Logo Kelarin" className="w-12 h-12 mr-2" />
+              <a href="/home"><Image src={Logo} alt="Logo Kelarin" className="w-12 h-12 mr-2 cursor-pointer" /></a>
               <h1 className="text-2xl font-bold text-white">Kelarin</h1>
             </div>
-
-            {/* Konten Utama */}
-            <div className="mt-20"> {/* Tambahkan margin top untuk memberi ruang dari logo */}
+            <div className="mt-20">
               <h2 className="text-5xl font-semibold mb-4">
                 Turn Every Task into an <span className="text-purple-800 font-bold">Achievement!</span>
               </h2>
