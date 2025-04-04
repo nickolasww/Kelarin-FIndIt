@@ -55,15 +55,15 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params }) => 
           setWorkspace(foundWorkspace)
         } else {
           // Workspace not found, redirect to home
-          router.push("/")
+          router.push("/dashboard")
         }
       } catch (error) {
         console.error("Error parsing workspaces from localStorage:", error)
-        router.push("/")
+        router.push("/NotFound")
       }
     } else {
       // No workspaces in localStorage, redirect to home
-      router.push("/")
+      router.push("/dashboard")
     }
 
     // Load tasks for this workspace
@@ -77,7 +77,7 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params }) => 
       try {
         setTasks(JSON.parse(savedTasks))
       } catch (error) {
-        <NotFound/>
+        console.error("Error parsing tasks from localStorage:", error)
         initializeDefaultTasks()
       }
     } else {
