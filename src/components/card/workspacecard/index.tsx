@@ -8,16 +8,14 @@ interface WorkspaceCardProps {
 
 export default function WorkspaceCard({ workspace }: WorkspaceCardProps) {
   return (
-    <div className="bg-gray-200 rounded-md p-4">
-      <div className="flex justify-center items-center h-24">
-        <Image
-          src="/bcc-nekad-icon.png" // Ganti dengan path ikon BCC Nekad
-          alt={workspace.name}
-          width={48}
-          height={48}
-        />
-      </div>
-      <p className="text-center mt-2 font-semibold">{workspace.name}</p>
+    <div className="relative rounded-lg shadow-md overflow-hidden">
+      <div className="h-12 bg-gradient-to-b from-gray-700 to-gray-900"></div>
+    <div className="bg-gray-200 rounded-md p-4 relative pb-10">
+                <div className="absolute -top-6 bg-teal-300 rounded-full w-10 h-10 flex items-center justify-center mr-4">
+                    <span className="text-xl font-semibold text-white uppercase">{workspace.name.charAt(0)}</span>
+                </div>
+                <p className="text-lg font-bold">{workspace.name}</p>
+        </div>
     </div>
   );
 }

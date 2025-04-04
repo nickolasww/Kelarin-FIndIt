@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Input from '@/components/input/index';
 
 interface CreateWorkspaceModalProps {
   isOpen: boolean;
@@ -9,16 +10,18 @@ const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({ isOpen, onC
   if (!isOpen) {
     return null;
   }
+  const [workspaceType, setWorkspaceType] = useState<string | null>(null);
+  const [email, setEmail] = useState('');
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center px-12 ">
-      <div className="bg-white p-8 rounded-md w-96">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold">Workspace Name</h2>
+    <div className="fixed z-50 inset-0 bg-black/50 flex items-center justify-center p-4 ">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-md md:max-w-2xl lg:max-w-3xl p-6 md:p-8 relative">
+        <div className="flex items-center justify-between mb-4 md:mb-6">
+          <h1 className="text-xl md:text-2xl font-semibold">Workspace Name</h1>
           <button onClick={onClose}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
+              className="h-5 w-5"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -32,29 +35,50 @@ const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({ isOpen, onC
             </svg>
           </button>
         </div>
-        <input
+        <Input
           type="text"
+          value=""
+          label=""
           placeholder="Add Description"
-          className="border rounded-md p-2 w-full mb-4"
+          classname="border border-gray-300 rounded-md w-full bg-gray-100 p-3 mb-4"
         />
-        <h3 className="text-md font-semibold mb-2">Share this Workspace</h3>
-        <div className="flex mb-4">
-          <input
-            type="text"
-            placeholder="type your friend email here"
-            className="border rounded-md p-2 flex-1 mr-2"
-          />
-          <button className="bg-purple-600 text-white py-2 px-4 rounded-md">
-            + Invite
-          </button>
+
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold mb-2">Share this Workspace</h2>
+          <div className="flex flex-col md:flex-row gap-3">
+            <input
+              type="email"
+              placeholder="type your friend email here"
+              className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-gray-500"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <button className="bg-purple-500 hover:bg-purple-600 text-white rounded-md px-4 py-2">
+              + Invite
+            </button>
+          </div>
         </div>
-        <h3 className="text-md font-semibold mb-2">How do you want to use this workspace?</h3>
-        <div className="flex justify-between mb-4">
-          <button className="border rounded-md p-2">Group Project</button>
-          <button className="border rounded-md p-2">Planner</button>
-          <button className="border rounded-md p-2">Lesson Plan</button>
+
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold mb-2">How do you want to use this workspace?</h2>
+          <div className="flex flex-wrap gap-2">
+            {['Group Project', 'Planner', 'Lesson Plan'].map((type) => (
+              <button
+                key={type}
+                className={`px-4 py-2 rounded-md border text-sm ${
+                  workspaceType === type
+                    ? 'border-purple-500 bg-purple-50 text-purple-700'
+                    : 'border-gray-300 text-gray-700'
+                }`}
+                onClick={() => setWorkspaceType(type)}
+              >
+                {type}
+              </button>
+            ))}
+          </div>
         </div>
-        <button className="bg-purple-600 text-white py-2 px-4 rounded-md w-full">
+
+        <button className="w-full bg-purple-500 hover:bg-purple-600 text-white rounded-md py-3 font-semibold">
           Create Workspace
         </button>
       </div>
