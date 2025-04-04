@@ -33,6 +33,13 @@ const MainContent = () => {
         />
       </div>
 
+      <div className="absolute top-4 md:top-9 right-4 flex items-center">
+        <span role="img" aria-label="fire" className="text-2xl">
+          🔥
+        </span>
+        <span className="text-lg font-bold mr-2">365 Days</span>
+      </div>
+
       <section className="mb-6 sm:mb-8">
         <h2 className="text-lg font-semibold mb-3 sm:mb-4">Recently Added</h2>
         <WorkspaceList
