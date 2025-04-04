@@ -50,7 +50,7 @@ export default function Login() {
               placeholder=""
               type="fullname"
               value={email}
-              classname="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-4"
+              onChange={(e) => setPassword(e.target.value)}
             />
 
             <Input
@@ -59,6 +59,7 @@ export default function Login() {
               type="email"
               value={email}
               classname="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-4"
+              onChange={(e) => setEmail(e.target.value)}
             />
 
             <Input
@@ -67,6 +68,7 @@ export default function Login() {
               type="password"
               value={password}
               classname="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-6"
+              onChange={(e) => setPassword(e.target.value)}
             />
 
             <div className="flex flex-col items-center">
