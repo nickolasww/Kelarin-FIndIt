@@ -1,91 +1,151 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useEffect } from "react"
-import WorkspaceSidebar from "@/app/dashboard/partials/workspaceside"
-import TaskColumn from "@/components/column/taskcolum"
-import { useRouter } from "next/navigation"
-import NotFound from "@/app/NotFound/page"
+import type React from "react";
+import { useState, useEffect } from "react";
+import WorkspaceSidebar from "@/app/dashboard/partials/workspaceside";
+import TaskColumn from "@/components/column/taskcolum";
+import { useRouter } from "next/navigation";
+import TableModal from "@/components/modal/addtablemodal";
+import TaskModal from "@/components/modal/addtaskmodal";
+import InviteModal from "@/components/modal/invitemodal";
+import NotificationModal from "@/components/modal/notificationmodal";
 
 interface WorkspaceDetailPageProps {
   params: {
-    id: string
-  }
+    id: string;
+  };
 }
 
 interface Workspace {
-  id: number
-  name: string
+  id: number;
+  name: string;
 }
 
 interface Task {
-  id: string
-  title: string
-  tag: string
-  tagColor: string
-  commentCount: number
-  attachmentCount: number
-  status: "todo" | "done" | "progress" | "review"
+  id: string;
+  title: string;
+  tag: string;
+  tagColor: string;
+  commentCount: number;
+  attachmentCount: number;
+  status: "todo" | "done" | "progress" | "review";
 }
 
-const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params }) => {
-  const router = useRouter()
-  const [workspace, setWorkspace] = useState<Workspace | null>(null)
+interface AddTableData {
+  name: string;
+  description: string;
+  inviteEmail: string;
+  usage: string | null;
+  image: File | null;
+}
+
+const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({
+  params,
+}) => {
+  const router = useRouter();
+  const [workspace, setWorkspace] = useState<Workspace | null>(null);
   const [tasks, setTasks] = useState<{
-    todo: Task[]
-    done: Task[]
-    progress: Task[]
-    review: Task[]
+    todo: Task[];
+    done: Task[];
+    progress: Task[];
+    review: Task[];
   }>({
     todo: [],
     done: [],
     progress: [],
     review: [],
-  })
+  });
+  const [isTableModalOpen, setIsTableModalOpen] = useState(false);
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
-  // Load workspace from localStorage
+  const openTableModal = () => {
+    setIsTableModalOpen(true);
+  };
+  const closeTableModal = () => {
+    setIsTableModalOpen(false);
+  };
+
+  const openTaskModal = () => {
+    setIsTaskModalOpen(true);
+  };
+  const closeTaskModal = () => {
+    setIsTaskModalOpen(false);
+  };
+
+  const OpenInviteModal = () => {
+    setIsInviteModalOpen(true);
+  };
+  const CloseInviteModal = () => {
+    setIsInviteModalOpen(false);
+  };
+
+  const OpenNotification = () => {
+    setIsNotificationOpen(true);
+  };
+  const CloseNotification = () => {
+    setIsNotificationOpen(false);
+  };
+
+  const handleCreate = (formData: AddTableData) => {
+    console.log("Data Workspace yang Dibuat:", formData);
+    // logic backend
+    setIsTableModalOpen(false);
+  };
+  const handleSaveTask = (taskData: {
+    deskripsi: string;
+    attachments: string[];
+    comment: string;
+  }) => {
+    console.log("Task Data Saved:", taskData);
+    closeTableModal();
+  };
+  const handleInviteFriend = (email: string) => {
+    console.log("Inviting friend with email:", email);
+    // logic to invite friend
+    CloseInviteModal();
+  };
+
   useEffect(() => {
-    const savedWorkspaces = localStorage.getItem("workspaces")
+    const savedWorkspaces = localStorage.getItem("workspaces");
     if (savedWorkspaces) {
       try {
-        const parsedWorkspaces: Workspace[] = JSON.parse(savedWorkspaces)
-        const foundWorkspace = parsedWorkspaces.find((w) => w.id === Number.parseInt(params.id))
+        const parsedWorkspaces: Workspace[] = JSON.parse(savedWorkspaces);
+        const foundWorkspace = parsedWorkspaces.find(
+          (w) => w.id === Number.parseInt(params.id)
+        );
 
         if (foundWorkspace) {
-          setWorkspace(foundWorkspace)
+          setWorkspace(foundWorkspace);
         } else {
-          // Workspace not found, redirect to home
-          router.push("/dashboard")
+          router.push("/dashboard");
         }
       } catch (error) {
-        console.error("Error parsing workspaces from localStorage:", error)
-        router.push("/NotFound")
+        console.error("Error parsing workspaces from localStorage:", error);
+        router.push("/NotFound");
       }
     } else {
-      // No workspaces in localStorage, redirect to home
-      router.push("/dashboard")
+      router.push("/dashboard");
     }
 
-    // Load tasks for this workspace
-    loadTasks()
-  }, [params.id, router])
+    loadTasks();
+  }, [params.id, router]);
 
-  // Load tasks from localStorage or initialize with defaults
   const loadTasks = () => {
-    const savedTasks = localStorage.getItem(`tasks_${params.id}`)
+    const savedTasks = localStorage.getItem(`tasks_${params.id}`);
     if (savedTasks) {
       try {
-        setTasks(JSON.parse(savedTasks))
+        setTasks(JSON.parse(savedTasks));
       } catch (error) {
-        console.error("Error parsing tasks from localStorage:", error)
-        initializeDefaultTasks()
+        console.error("Error parsing tasks from localStorage:", error);
+        initializeDefaultTasks();
       }
     } else {
-      initializeDefaultTasks()
+      initializeDefaultTasks();
     }
-  }
+  };
 
-  // Initialize with default tasks
   const initializeDefaultTasks = () => {
     const defaultTasks = {
       todo: [
@@ -168,22 +228,26 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params }) => 
           status: "review" as const,
         },
       ],
-    }
+    };
 
-    setTasks(defaultTasks)
-    localStorage.setItem(`tasks_${params.id}`, JSON.stringify(defaultTasks))
-  }
+    setTasks(defaultTasks);
+    localStorage.setItem(`tasks_${params.id}`, JSON.stringify(defaultTasks));
+  };
 
   // Handle adding a new task
   const handleAddTask = (newTask: Task) => {
-    const updatedTasks = { ...tasks }
-    updatedTasks[newTask.status] = [...tasks[newTask.status], newTask]
-    setTasks(updatedTasks)
-    localStorage.setItem(`tasks_${params.id}`, JSON.stringify(updatedTasks))
-  }
+    const updatedTasks = { ...tasks };
+    updatedTasks[newTask.status] = [...tasks[newTask.status], newTask];
+    setTasks(updatedTasks);
+    localStorage.setItem(`tasks_${params.id}`, JSON.stringify(updatedTasks));
+  };
 
   if (!workspace) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>
+    return (
+      <div className="flex justify-center items-center h-screen">
+        Loading...
+      </div>
+    );
   }
 
   return (
@@ -201,7 +265,10 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params }) => 
           </div>
 
           <div className="flex items-center space-x-4">
-            <button className="bg-purple-600 text-white px-4 py-2 rounded-lg flex items-center">
+            <button
+              className="bg-purple-600 text-white px-4 py-2 rounded-lg flex items-center"
+              onClick={OpenInviteModal}
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-5 w-5 mr-1"
@@ -209,7 +276,12 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params }) => 
                 viewBox="0 0 24 24"
                 stroke="currentColor"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4v16m8-8H4"
+                />
               </svg>
               Invite
             </button>
@@ -233,7 +305,10 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params }) => 
               </div>
 
               <div className="flex space-x-2">
-                <button className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg">
+                <button
+                  className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg"
+                  onClick={openTaskModal}
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="h-5 w-5"
@@ -249,7 +324,7 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params }) => 
                     />
                   </svg>
                 </button>
-                <button className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg">
+                <button className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg" onClick={OpenNotification}>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="h-5 w-5"
@@ -303,7 +378,10 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params }) => 
               onAddTask={handleAddTask}
             />
 
-            <button className="flex-shrink-0 flex items-center justify-center w-16 h-16 bg-purple-600 rounded-lg text-white">
+            <button
+              className="flex-shrink-0 flex items-center justify-center w-16 h-16 bg-purple-600 rounded-lg text-white"
+              onClick={openTableModal}
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-8 w-8"
@@ -311,15 +389,40 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params }) => 
                 viewBox="0 0 24 24"
                 stroke="currentColor"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4v16m8-8H4"
+                />
               </svg>
             </button>
           </div>
         </div>
       </div>
+
+      <TableModal
+        isOpen={isTableModalOpen}
+        onClose={closeTableModal}
+        onSubmit={handleCreate}
+      />
+      <TaskModal
+        isOpen={isTaskModalOpen}
+        onClose={closeTaskModal}
+        onSave={handleSaveTask}
+      />
+      <InviteModal
+        isOpen={isInviteModalOpen}
+        onClose={CloseInviteModal}
+        onInvite={handleInviteFriend}
+      />
+      <NotificationModal
+        isOpen={isNotificationOpen}
+        onClose={CloseNotification}
+      />
+      
     </div>
-  )
-}
+  );
+};
 
-export default WorkspaceDetailPage
-
+export default WorkspaceDetailPage;

@@ -3,10 +3,22 @@
 import type React from "react"
 import { useState } from "react"
 import CreateWorkspaceModal from "@/components/modal/createworkspace"
+import TableModal from "@/components/modal/addtablemodal"
+import TaskModal from "@/components/modal/addtaskmodal"
 
 interface SidebarProps {
   onCreate: (name: string) => void
 }
+
+
+interface AddTableData {
+  name: string;
+  description: string;
+  inviteEmail: string;
+  usage: string | null;
+  image: File | null;
+}
+
 
 const Sidebar: React.FC<SidebarProps> = ({ onCreate }) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -19,6 +31,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onCreate }) => {
   const closeModal = () => {
     setIsModalOpen(false)
   }
+
+  const handleCreate = (formData: AddTableData) => {
+    console.log('Data Workspace yang Dibuat:', formData);
+    // Di sini Anda bisa mengirimkan data ke backend atau melakukan tindakan lain
+    setIsModalOpen(false);
+  };
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen)
@@ -78,6 +96,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCreate }) => {
       </div>
 
       <CreateWorkspaceModal isOpen={isModalOpen} onClose={closeModal} onCreate={onCreate} />
+
     </>
   )
 }
