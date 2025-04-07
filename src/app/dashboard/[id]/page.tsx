@@ -266,7 +266,7 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({
 
           <div className="flex items-center space-x-4">
             <button
-              className="bg-purple-600 text-white px-4 py-2 rounded-lg flex items-center"
+              className="bg-purple-600 text-white px-4 py-2 rounded-sm flex items-center"
               onClick={OpenInviteModal}
             >
               <svg
