@@ -55,7 +55,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({ title, count, tasks, color, onA
         <div className={`w-4 h-4 rounded-full ${color} mr-2`}></div>
         <h2 className="font-medium">{title}</h2>
         <span className={`ml-2 text-xs px-2 py-0.5 rounded-full ${color} text-white`}>{count}</span>
-        <button className="ml-auto text-gray-500">
+        <button className="ml-auto text-gray-500" >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
             <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
           </svg>
