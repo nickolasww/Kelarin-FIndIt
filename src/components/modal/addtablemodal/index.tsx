@@ -51,7 +51,7 @@ const AddTableModal: React.FC<WorkspaceModalProps> = ({  isOpen,onSubmit, onClos
 
   return isModalOpen ?  (
     <div className="fixed z-50 inset-0 bg-black/50 flex justify-center items-center">
-      <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
+      <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-3xl">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold text-gray-800">Workspace Name</h2>
           <button className="text-gray-500 hover:text-gray-700 focus:outline-none" onClick={onClose}>
@@ -64,8 +64,8 @@ const AddTableModal: React.FC<WorkspaceModalProps> = ({  isOpen,onSubmit, onClos
         <form onSubmit={handleSubmit} className="space-y-4">
             <textarea
               id="description"
-              className="w-full p-2 border-2 border-dashed border-gray-300 rounded-md text-sm text-gray-700 focus:outline-none focus:ring focus:ring-indigo-300"
-              placeholder="Add Description"
+              className="w-full p-2 border-2 border-dashed border-gray-300 rounded-md text-sm text-gray-700 focus:outline-none h-32"
+              placeholder="Description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
@@ -76,13 +76,14 @@ const AddTableModal: React.FC<WorkspaceModalProps> = ({  isOpen,onSubmit, onClos
             acceptedTypes="image/jpeg, image/png"
             onFileUploaded={handleImageUploaded}
           />
-
+          <div className='flex items-center justify-center'>
           <button
             type="submit"
-            className="bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-6 rounded focus:outline-none focus:shadow-outline w-full"
+            className="bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-6 my-6 rounded focus:outline-none focus:shadow-outline w-96"
           >
             Save Change
           </button>
+          </div>
         </form>
       </div>
     </div>
