@@ -29,12 +29,11 @@ const ChatContent = () => {
   };
 
   return (
-    <div className="flex h-screen font-sans">
-      <WorkspaceSidebar />
+    <div className="flex h-screen font-sans ">
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
-        <header className="bg-white py-3 px-6 flex items-center justify-between shadow-sm">
+        {/* <header className="bg-white py-3 px-6 flex items-center justify-between shadow-sm rounded-t-lg">
           <div className="flex items-center">
             <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center mr-3">
               <span className="text-white font-bold">K</span>
@@ -71,10 +70,10 @@ const ChatContent = () => {
               <span className="font-bold ml-1">365 Days</span>
             </div>
           </div>
-        </header>
+        </header> */}
 
         {/* Content */}
-        <div className="flex-1 p-4 bg-gradient-to-br from-purple-300 via-purple-400 to-purple-500 relative">
+        <div className="flex-1 p-4 bg-gradient-to-br from-purple-300 via-purple-400 to-purple-500 relative rounded-lg ">
           <div className="bg-white p-6 rounded-xl shadow-md w-full flex justify-between h-40 border-2 border-gray-600">
             <div>
               <h2 className="text-3xl font-bold text-purple-800">BCC Nekad</h2>
@@ -86,6 +85,7 @@ const ChatContent = () => {
               <Image
               src={EditIcon}
                 alt="editIcon"
+                className="cursor-pointer"
               /> 
             </div>
 
@@ -93,6 +93,7 @@ const ChatContent = () => {
                 <Image
                 src={Notification}
                 alt="kolaborasi"
+                className="cursor-pointer"
                 />
             </div>
             </div>
@@ -107,7 +108,7 @@ const ChatContent = () => {
                 value=""
                 placeholder="type your message here"
                 onChange={() => {}}
-                classname="border-2 border-gray-500 text-gray-500 rounded-sm py-3 px-4 outline-none w-[1390px]"
+                classname="border-2 border-gray-500 text-gray-500 rounded-sm py-3 px-4 outline-none w-[1320px]"
               />
               <button
                 className="bg-purple-500 text-white p-3 focus:outline-none rounded-full"

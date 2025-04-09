@@ -38,6 +38,8 @@ export default function Login() {
           <div className="pt-6 md:pt-10 ml-5">
             <Input
               label="Email"
+              placeholder=""
+              onChange={(e) => setEmail(e.target.value)}
               type="email"
               value={email}
               classname="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-4"
@@ -45,6 +47,8 @@ export default function Login() {
 
             <Input
               label="Password"
+              placeholder=""
+              onChange={(e) => setPassword(e.target.value)}
               type="password"
               value={password}
               classname="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-6"
