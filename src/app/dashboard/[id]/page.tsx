@@ -7,10 +7,12 @@ import InviteModal from '@/components/modal/invitemodal';
 import Workspace from '@/app/dashboard/[id]/workspace/page'
 import DeleteModal from '@/components/modal/deletemodal';
 import Header from '@/app/dashboard/partials/header';
+import StreakModal from '@/components/modal/streakmodal';
 
 const DashboardPage = () => {
   const [activeContent, setActiveContent] = useState< 'workspace' | 'call' | 'chat' | 'settings' | 'users' | null>('users');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isStreakModalOpen, setIsStreakModalOpen] = useState(false);
 
   const handleNavigation = (content: 'workspace' | 'users' | 'call' | 'chat' | 'settings') => {
     if (content === 'users') {
@@ -26,6 +28,13 @@ const DashboardPage = () => {
   const CloseDeleteModal = () => {
     setIsDeleteModalOpen(false);
   };
+
+  const OpenStreakModal = () => { 
+    setIsStreakModalOpen(true);
+  }
+  const CloseStreakModal = () => {
+    setIsStreakModalOpen(false);
+  }
 
         const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   
@@ -65,7 +74,7 @@ const DashboardPage = () => {
 
   return (
     <>
-    <Header OpenInviteModal={OpenInviteModal} /> 
+    <Header OpenInviteModal={OpenInviteModal} OpenStreakModal={OpenStreakModal}/> 
     <div className="flex h-screen font-sans">
       <WorkspaceSidebar onNavigate={handleNavigation} OpenDeleteModal={OpenDeleteModal} />
       <div className="flex-1 flex flex-col">
@@ -77,13 +86,19 @@ const DashboardPage = () => {
       <DeleteModal
         isOpen={isDeleteModalOpen}
         onClose={CloseDeleteModal}
-        onCreate={(name: string) => console.log(name)} // Placeholder for delete action
+        onCreate={(name: string) => console.log()}
         />
 
         <InviteModal
         isOpen={isInviteModalOpen}
         onClose={CloseInviteModal}
         onInvite={handleInviteFriend}
+      />
+
+      <StreakModal 
+        isOpen={isStreakModalOpen}
+        onClose={CloseStreakModal}
+        onCreate={(name: string) => console.log()}
       />
     </div>
         </>
