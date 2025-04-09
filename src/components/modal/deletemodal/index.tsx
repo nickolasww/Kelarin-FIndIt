@@ -23,7 +23,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({ isOpen, onClose, onCreate }) 
   return isModalOpen ? (
     <div className="fixed z-50 inset-0 bg-black/50 flex items-center justify-center p-4">
     <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 relative">
-      <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+      <button onClick={onClose} className="text-gray-500 hover:text-gray-700 absolute top-4 right-4 focus:outline-none">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-5 w-5 sm:h-6 sm:w-6"
@@ -35,7 +35,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({ isOpen, onClose, onCreate }) 
             </svg>
           </button>
     <div className='flex flex-col gap-5 items-center justify-center'>
-      <h1 className='font-bold text-3xl text-purple-700'>Delete This Workspace?</h1>
+      <h1 className='font-bold text-3xl text-purple-700 pt-7'>Delete This Workspace?</h1>
       <p className='px-40 text-center mb-5'>Are you sure want to delete this workspace? This action cannot be undone</p>
       <Image
       src={DeleteIcon} 
