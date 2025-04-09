@@ -3,6 +3,8 @@
 import type React from "react"
 import WorkspaceCard from "@/components/card/workspacecard"
 import Input from "@/components/input/index"
+import StreakIcon from "@/assets/icon/StreakIcon.svg"
+import Image from "next/image"
 
 interface Workspace {
   id: number
@@ -38,9 +40,14 @@ const MainContent: React.FC<MainContentProps> = ({ workspaces }) => {
         />
       </div>
 
-      <div className="absolute top-4 md:top-9 right-4 flex items-center">
+      <div className="absolute top-4 md:top-9 right-4 flex items-center gap-3">
         <span role="img" aria-label="fire" className="text-2xl">
-          🔥
+          <Image 
+            src={StreakIcon}
+            alt="Streak Icon"
+            width={24}
+            height={24}
+          />
         </span>
         <span className="text-lg font-bold mr-2">365 Days</span>
       </div>

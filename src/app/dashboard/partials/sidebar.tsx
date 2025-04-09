@@ -5,11 +5,11 @@ import { useState } from "react"
 import CreateWorkspaceModal from "@/components/modal/createworkspace"
 import TableModal from "@/components/modal/addtablemodal"
 import TaskModal from "@/components/modal/addtaskmodal"
+import UpgradeModal from "@/components/modal/upgrademodal"
 
 interface SidebarProps {
   onCreate: (name: string) => void
 }
-
 
 interface AddTableData {
   name: string;
@@ -19,9 +19,9 @@ interface AddTableData {
   image: File | null;
 }
 
-
 const Sidebar: React.FC<SidebarProps> = ({ onCreate }) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   const openModal = () => {
@@ -30,6 +30,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onCreate }) => {
 
   const closeModal = () => {
     setIsModalOpen(false)
+  }
+
+  const openUpgradeModal = () => {
+    setIsUpgradeModalOpen(true)
+  }
+  const closeUpgradeModal = () => {
+    setIsUpgradeModalOpen(false)
   }
 
   const handleCreate = (formData: AddTableData) => {
@@ -92,11 +99,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onCreate }) => {
 
         <div className="flex-grow"></div>
 
-        <button className="text-sm text-gray-500 mt-auto flex items-center cursor-pointer">Upgrade Plan</button>
+        <button className="text-sm text-gray-500 mt-auto flex items-center cursor-pointer" onClick={openUpgradeModal}>Upgrade Plan         
+        </button>
       </div>
 
       <CreateWorkspaceModal isOpen={isModalOpen} onClose={closeModal} onCreate={onCreate} />
-
+      <UpgradeModal isOpen={isUpgradeModalOpen} onClose={closeUpgradeModal} />
     </>
   )
 }
