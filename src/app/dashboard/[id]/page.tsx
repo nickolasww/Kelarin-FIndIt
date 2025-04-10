@@ -78,7 +78,7 @@ const DashboardPage = () => {
     <div className="flex h-screen font-sans">
       <WorkspaceSidebar onNavigate={handleNavigation} OpenDeleteModal={OpenDeleteModal} />
       <div className="flex-1 flex flex-col">
-        <div className="flex-1 pb-5 pt-20 px-5">
+        <div className="flex-1 pt-20 px-5">
         {contentToRender}
         </div>
         </div>
