@@ -1,12 +1,17 @@
-"use client";
+'use client';
 
-import type React from "react";
-import { useState, useEffect } from "react";
-import Input from "@/components/input/index";
+import React, { useState } from 'react';
+import { useEffect } from 'react';
 
 interface TaskModalProps {
-  isOpen: boolean;
   onClose: () => void;
+  onUpdate: (comment: string, attachments: string[]) => void;
+  onRemove: () => void;
+  initialTitle?: string;
+  initialDescription?: string;
+  initialAttachments?: string[];
+  initialComment?: string;
+  isOpen: boolean;
   onSave: (data: {
     deskripsi: string;
     attachments: string[];
@@ -14,12 +19,24 @@ interface TaskModalProps {
   }) => void;
 }
 
-const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+const AddTaskModal: React.FC<TaskModalProps> = ({
+  isOpen,
+  onClose,
+  onUpdate,
+  onRemove,
+  onSave,
+  initialTitle = 'Membuat PRD 1.0',
+  initialDescription = 'membuat prd untuk fitur yang akan dijadikan MVP',
+  initialAttachments = [],
+  initialComment = '',
+}) => {
+  const [title, setTitle] = useState(initialTitle);
   const [deskripsi, setDeskripsi] = useState("");
   const [attachmentInput, setAttachmentInput] = useState("");
   const [attachments, setAttachments] = useState<string[]>([]);
   const [comment, setComment] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
 
   useEffect(() => {
     setIsModalOpen(isOpen);
@@ -54,49 +71,36 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave }) => {
   };
 
   return isModalOpen ? (
-    <div className="fixed z-50 inset-0 bg-black/50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative">
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
+    <div className="fixed z-50 inset-0 bg-black/50 flex justify-center items-center">
+      <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-4">
+          <input
+            type="text"
+            className="text-xl font-semibold text-gray-800 focus:outline-none border-b border-black w-56"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-700 focus:outline-none">
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
 
-        {/* Nama Task */}
-        <h2 className="text-xl font-semibold mb-4">Nama Task</h2>
-
-        {/* Deskripsi */}
+        {/* Description */}
         <div className="mb-4">
-          <label htmlFor="deskripsi" className="block text-sm font-medium text-gray-700 mb-1">
-            Deskripsi
-          </label>
           <textarea
-            id="deskripsi"
+            className="w-full p-2 border-2 border-dashed border-gray-300 rounded-md text-sm text-gray-700 focus:outline-none h-24"
+            placeholder="membuat prd untuk fitur yang akan dijadikan MVP"
             value={deskripsi}
             onChange={(e) => setDeskripsi(e.target.value)}
-            className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-            rows={3}
           />
         </div>
 
         {/* Attachment */}
         <div className="mb-4">
-          <label htmlFor="attachment" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="attachment" className="block text-sm font-medium text-black mb-3">
             Attachment
           </label>
           <div className="flex items-center">
@@ -106,28 +110,28 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave }) => {
               placeholder="paste link or file here"
               value={attachmentInput}
               onChange={(e) => setAttachmentInput(e.target.value)}
-              className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+              className="w-full p-2 border border-gray-300 rounded-sm text-sm text-gray-700 focus:outline-none"
             />
             <button
               type="button"
               onClick={handleAddAttachment}
-              className="ml-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="ml-7 bg-purple-700 text-white font-semibold py-2 px-4 rounded focus:outline-none w-30"
             >
               + Add
             </button>
           </div>
           {attachments.length > 0 && (
-            <div className="mt-2">
+            <div className="mt-3 mb-6">
               {attachments.map((link, index) => (
                 <div
                   key={index}
-                  className="inline-flex items-center bg-gray-100 text-gray-700 rounded-md py-1 px-2 mr-2 mt-1"
+                  className="inline-flex items-center border-[1px] border-gray-700 text-black font-semibold rounded-sm py-2 px-5"
                 >
                   <span>{`Link ${index + 1}`}</span>
                   <button
                     type="button"
                     onClick={() => handleRemoveAttachment(index)}
-                    className="ml-1 text-gray-400 hover:text-gray-600 focus:outline-none"
+                    className="ml-4 mt-1 text-black focus:outline-none"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -152,37 +156,43 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave }) => {
 
         {/* Comment */}
         <div className="mb-4">
-          <label htmlFor="comment" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="comment" className="block text-sm font-medium text-black mb-2">
             Comment
           </label>
           <div className="flex items-center">
             <input
               type="text"
               id="comment"
+              className="w-full p-2 border border-gray-300 rounded-sm text-sm text-gray-700 focus:outline-none"
               placeholder="type your comment here"
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
             />
             <button
               type="button"
-              className="ml-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              onClick={() => {
+                onUpdate(comment, attachments);
+                setComment(''); // Clear comment after posting (optional)
+              }}
+              className="ml-7 bg-purple-700 text-white font-semibold py-2 px-4 rounded focus:outline-none w-30"
             >
               + Post
             </button>
           </div>
         </div>
 
-        {/* Save Change Button */}
-        <button
-          onClick={handleSave}
-          className="w-full px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
-        >
-          Save Change
-        </button>
+        {/* Actions */}
+        <div className="flex justify-center gap-2 mt-9">
+          <button
+            onClick={handleSave}
+            className="bg-purple-700 text-white font-semibold py-2 px-20 rounded focus:outline-none"
+          >
+            Save Change
+          </button>
+        </div>
       </div>
     </div>
-  ) : null;
+  ) : null ; 
 };
 
-export default TaskModal;
+export default AddTaskModal;

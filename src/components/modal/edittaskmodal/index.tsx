@@ -56,7 +56,7 @@ const EditTaskModal: React.FC<TaskModalProps> = ({
         <div className="flex justify-between items-center mb-4">
           <input
             type="text"
-            className="text-xl font-semibold text-gray-800 focus:outline-none border-b border-black w-auto"
+            className="text-xl font-semibold text-gray-800 focus:outline-none border-b border-black w-56"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
@@ -71,7 +71,7 @@ const EditTaskModal: React.FC<TaskModalProps> = ({
         <div className="mb-4">
           <textarea
             className="w-full p-2 border-2 border-dashed border-gray-300 rounded-md text-sm text-gray-700 focus:outline-none h-24"
-            placeholder="membuat prd untuk fitur yang akan dijadikan MVP"
+            placeholder="description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
