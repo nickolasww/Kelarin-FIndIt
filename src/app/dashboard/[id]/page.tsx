@@ -14,9 +14,14 @@ const DashboardPage = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isStreakModalOpen, setIsStreakModalOpen] = useState(false);
 
-  const handleNavigation = (content: 'workspace' | 'users' | 'call' | 'chat' | 'settings') => {
+  const handleNavigation = (content: 'workspace' | 'users' | 'call' | 'chat' | 'settings' | 'logout') => {
     if (content === 'users') {
       console.warn(`Navigation to ${content} is not implemented.`);
+      return;
+    }
+    if (content === 'logout') {
+      console.log('Logging out...');
+      // Add logout logic here
       return;
     }
     setActiveContent(content);
