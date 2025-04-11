@@ -54,7 +54,7 @@ const HomePage = () => {
 
   return (
     <div className="flex min-h-screen">
-      <Sidebar onCreate={handleCreateWorkspace} />
+      <Sidebar onCreate={handleCreateWorkspace} workspaces={workspaces} />
       
       <MainContent workspaces={workspaces} />
     </div>

@@ -1,13 +1,55 @@
-"use client";
-import { useState } from "react";
-import Input from "@/components/input";
-import Button from "@/components/button";
-import Logo from "@/assets/icon/Logo.svg";
-import Image from "next/image";
+"use client"
+
+import { useState } from "react"
+import Input from "@/components/input"
+import Button from "@/components/button"
+import Logo from "@/assets/icon/Logo.svg"
+import Image from "next/image"
+import { useRouter } from "next/navigation"
+
+const ValidUser = [{ email: "Nickolaswewe@gmail.com", password: "Selvi123", name: "Nickolas Wewe" }]
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState<string>("")
+  const [password, setPassword] = useState<string>("")
+  const [error, setError] = useState<string>("")
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const router = useRouter()
+
+  const handleLogin = async () => {
+    setError("")
+
+    if (!email || !password) {
+      setError("Email and password are required!")
+      return
+    }
+
+    const trimmedEmail = email.trim()
+    const trimmedPassword = password.trim()
+
+    if (!trimmedEmail || !trimmedPassword) {
+      setError("Email and password cannot be just whitespace!")
+      return
+    }
+
+    setIsLoading(true)
+
+    await new Promise((resolve) => setTimeout(resolve, 800))
+
+    const validUser = ValidUser.find(
+      (user) => user.email.toLowerCase() === trimmedEmail.toLowerCase() && user.password === trimmedPassword,
+    )
+
+    setIsLoading(false)
+
+    if (validUser) {
+      localStorage.setItem("IsloggedIn", "true")
+      localStorage.setItem("name", validUser.name)
+      router.push("/dashboard")
+    } else {
+      setError("Invalid email or password!")
+    }
+  }
 
   return (
     <section className="flex">
@@ -15,7 +57,9 @@ export default function Login() {
         <div className="relative w-full h-screen flex justify-center">
           <div className="relative m-2 bg-gradient-to-br from-purple-200 to-purple-800 rounded-3xl p-8 shadow-2xl flex flex-col items-start justify-center">
             <div className="absolute top-8 left-8 flex items-center">
-              <a href="/home"><Image src={Logo} alt="Logo Kelarin" className="w-12 h-12 mr-2 cursor-pointer" /></a>
+              <a href="/home">
+                <Image src={Logo || "/placeholder.svg"} alt="Logo Kelarin" className="w-12 h-12 mr-2 cursor-pointer" />
+              </a>
               <h1 className="text-2xl font-bold text-white">Kelarin</h1>
             </div>
             <div className="mt-20">
@@ -23,7 +67,8 @@ export default function Login() {
                 Turn Every Task into an <span className="text-purple-800 font-bold">Achievement!</span>
               </h2>
               <p className="text-md pr-20">
-                Boost productivity with a gamified Kanban system! Manage tasks, earn points, and unlock rewards as you progress. Stay organized, stay motivated, and level up your workflow - all in one place!
+                Boost productivity with a gamified Kanban system! Manage tasks, earn points, and unlock rewards as you
+                progress. Stay organized, stay motivated, and level up your workflow - all in one place!
               </p>
             </div>
           </div>
@@ -38,7 +83,7 @@ export default function Login() {
           <div className="pt-6 md:pt-10 ml-5">
             <Input
               label="Email"
-              placeholder=""
+              placeholder="Enter your email"
               onChange={(e) => setEmail(e.target.value)}
               type="email"
               value={email}
@@ -47,26 +92,32 @@ export default function Login() {
 
             <Input
               label="Password"
-              placeholder=""
+              placeholder="Enter your password"
               onChange={(e) => setPassword(e.target.value)}
               type="password"
               value={password}
               classname="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-6"
             />
 
+            {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
             <div className="flex flex-col items-center">
               <Button
-                text="Sign In"
-                className="mt-6 w-full bg-purple-800 p-3 font-semibold rounded-lg text-white cursor-pointer"
+                text={isLoading ? "Signing In..." : "Sign In"}
+                className={`mt-6 w-full bg-purple-800 p-3 font-semibold rounded-lg text-white ${isLoading ? "opacity-70 cursor-not-allowed" : "cursor-pointer"}`}
+                onclick={handleLogin}
+                disabled={isLoading}
               />
             </div>
           </div>
 
           <p className="text-center pt-8 md:pt-10">
-            Don't have an account? <a href="/register" className="text-purple-500">Sign Up</a>
+            Don't have an account?{" "}
+            <a href="/register" className="text-purple-500">
+              Sign Up
+            </a>
           </p>
         </div>
       </div>
     </section>
-  );
+  )
 }

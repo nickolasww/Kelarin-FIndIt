@@ -1,10 +1,12 @@
 "use client"
 
 import type React from "react"
+import { useMemo, useState } from "react"
 import WorkspaceCard from "@/components/card/workspacecard"
 import Input from "@/components/input/index"
 import StreakIcon from "@/assets/icon/StreakIcon.svg"
 import Image from "next/image"
+import { IoSearch } from "react-icons/io5";
 
 interface Workspace {
   id: number
@@ -26,18 +28,29 @@ function WorkspaceList({ workspaces }: { workspaces: Workspace[] }) {
 }
 
 const MainContent: React.FC<MainContentProps> = ({ workspaces }) => {
+  const [searchTerm, setSearchTerm] = useState<string>("")
+
+  const filterWorkspaces = useMemo(() => {
+    return workspaces.filter((workspace) =>
+      workspace.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  },[workspaces,searchTerm])
+
   return (
     <div className="flex-1 p-4 sm:p-8 shadow-md">
       <div className="flex flex-col items-start gap-3 sm:gap-5 mb-3 sm:mb-4">
         <h1 className="text-xl sm:text-2xl font-semibold">Workspace</h1>
-        <Input
-          type="text"
-          value=""
-          label=""
-          placeholder="Search..."
-          classname="border rounded-md py-2 px-4 w-full sm:w-96"
-          onChange={() => {}}
-        />
+        <div className="relative w-full sm:w-96"> 
+          <IoSearch className="absolute left-3 top-7 transform -translate-y-1/2 text-gray-400" />
+          <Input
+            type="text"
+            value={searchTerm}
+            label=""
+            placeholder="Search..."
+            classname="border rounded-md py-2 px-4 pl-10 w-full" 
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
       </div>
 
       <div className="absolute top-4 md:top-9 right-4 flex items-center gap-3">
@@ -59,7 +72,7 @@ const MainContent: React.FC<MainContentProps> = ({ workspaces }) => {
 
       <section>
         <h2 className="text-lg font-semibold mb-3 sm:mb-4">All Workspace</h2>
-        <WorkspaceList workspaces={workspaces} />
+        <WorkspaceList workspaces={filterWorkspaces} />
       </section>
     </div>
   )

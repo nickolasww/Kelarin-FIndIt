@@ -15,6 +15,7 @@ const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({ isOpen, onC
   const [workspaceType, setWorkspaceType] = useState<string | null>(null)
   const [email, setEmail] = useState("")
   const [workspaceName, setWorkspaceName] = useState("")
+  const [description, setDescription] = useState("")
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   useEffect(() => {
@@ -26,6 +27,7 @@ const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({ isOpen, onC
       onCreate(workspaceName)
       // Reset form fields after creating
       setWorkspaceName("")
+      setDescription("")
       setEmail("")
       setWorkspaceType(null)
       onClose()
@@ -36,7 +38,14 @@ const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({ isOpen, onC
     <div className="fixed z-50 inset-0 bg-black/50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl w-full max-w-3xl p-6 sm:p-8 relative">
         <div className="flex items-center justify-between mb-4 sm:mb-6">
-          <h1 className="text-2xl sm:text-3xl underline">Workspace Name</h1>
+        <Input
+            type="text"
+            label=""
+            classname="text-xl font-semibold text-gray-800 focus:outline-none border-b border-black w-56"
+            value={workspaceName}
+            placeholder=""
+            onChange={(e) => setWorkspaceName(e.target.value)}
+          />
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -52,8 +61,8 @@ const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({ isOpen, onC
 
         {/* Workspace name/description textarea */}
         <textarea
-          value={workspaceName}
-          onChange={(e) => setWorkspaceName(e.target.value)}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
           placeholder="Add Description"
           className="border-2 border-dashed border-gray-300 rounded-xl w-full bg-gray-100 min-h-[120px] p-4 sm:p-5 focus:outline-none mb-6"
         />

@@ -20,6 +20,7 @@ const Input: React.FC<CustomInputProps> = ({ label, type = 'text',classname, pla
         placeholder={placeholder}
         className={classname}
         type={type}  
+        onChange={onChange}
       />
     </div>
   );

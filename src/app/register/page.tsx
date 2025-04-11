@@ -6,8 +6,10 @@ import Logo from "@/assets/icon/Logo.svg";
 import Image from "next/image";
 
 export default function Login() {
+  const [fullName, setFullName] = useState<string>("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
 
   return (
     <section className="flex">
