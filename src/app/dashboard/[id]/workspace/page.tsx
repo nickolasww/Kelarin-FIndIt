@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useState, useEffect } from "react"
-import TaskColumn from "@/components/column/taskcolum" // Fixed import path
+import TaskColumn from "@/components/column/taskcolum"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import EditIcon from "@/assets/icon/EditIcon.png"
