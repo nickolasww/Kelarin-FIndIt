@@ -7,7 +7,7 @@ import Logo from "@/assets/icon/Logo.svg"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 
-const ValidUser = [{ email: "Nickolaswewe@gmail.com", password: "Selvi123", name: "Nickolas Wewe" }]
+const ValidUser = [{ email: "Nickolaswewe@gmail.com", password: "Nickolas29", name: "Nickolas Wewe" }]
 
 export default function Login() {
   const [email, setEmail] = useState<string>("")
