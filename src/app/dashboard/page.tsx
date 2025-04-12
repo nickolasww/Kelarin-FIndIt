@@ -1,65 +1,75 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import Sidebar from "@/app/dashboard/partials/sidebar"
 import MainContent from "@/app/dashboard/partials/maincontent"
+import { getWorkspaces, type Workspace } from "@/services/workspace"
 
-interface Workspace {
-  id: number
-  name: string
-}
-
-const HomePage = () => {
+export default function DashboardPage() {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    const savedWorkspaces = localStorage.getItem("workspaces")
-    if (savedWorkspaces) {
-      try {
-        setWorkspaces(JSON.parse(savedWorkspaces))
-      } catch (error) {
-        console.error("Error parsing workspaces from localStorage:", error)
-        initializeDefaultWorkspaces()
-      }
-    } else {
-      initializeDefaultWorkspaces()
+  const fetchWorkspaces = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const data = await getWorkspaces()
+      const processedWorkspaces = Array.isArray(data)
+        ? data.map((workspace) => ({
+            ...workspace,
+            id: workspace.id || Math.floor(Math.random() * 100000),
+            title: workspace.title || workspace.name || "Unnamed Workspace",
+          }))
+        : []
+
+      console.log("Processed workspaces in dashboard:", processedWorkspaces)
+      setWorkspaces(processedWorkspaces)
+    } catch (err) {
+      console.error("Error fetching workspaces:", err)
+      setError("Failed to load workspaces")
+    } finally {
+      setIsLoading(false)
     }
   }, [])
 
-  const initializeDefaultWorkspaces = () => {
-    const defaultWorkspaces = [
-      { id: 1, name: "BCC Nekad" },
-    ]
-    setWorkspaces(defaultWorkspaces)
-    localStorage.setItem("workspaces", JSON.stringify(defaultWorkspaces))
-  }
-
   useEffect(() => {
-    if (workspaces.length > 0) {
-      localStorage.setItem("workspaces", JSON.stringify(workspaces))
+    fetchWorkspaces()
+  }, [fetchWorkspaces])
+
+  const handleWorkspaceCreated = (newWorkspace: Workspace) => {
+    console.log("New workspace created:", newWorkspace)
+
+    const processedWorkspace = {
+      ...newWorkspace,
+      id: newWorkspace.id || Math.floor(Math.random() * 100000),
+      title: newWorkspace.title || newWorkspace.name || "Unnamed Workspace",
     }
-  }, [workspaces])
 
-  const handleCreateWorkspace = (name: string) => {
-    const maxId = workspaces.reduce((max, workspace) => (workspace.id > max ? workspace.id : max), 0)
+    console.log("Processed new workspace:", processedWorkspace)
 
-    const newWorkspace = {
-      id: maxId + 1,
-      name: name,
-    }
-
-    const updatedWorkspaces = [...workspaces, newWorkspace]
-    setWorkspaces(updatedWorkspaces)
+    setWorkspaces((prevWorkspaces) => {
+      const workspaceArray = Array.isArray(prevWorkspaces) ? prevWorkspaces : []
+      return [...workspaceArray, processedWorkspace]
+    })
   }
 
   return (
-    <div className="flex min-h-screen">
-      <Sidebar onCreate={handleCreateWorkspace} workspaces={workspaces} />
-      
-      <MainContent workspaces={workspaces} />
+    <div className="flex flex-col sm:flex-row min-h-screen bg-gray-50">
+      <Sidebar workspaces={workspaces} onWorkspaceCreated={handleWorkspaceCreated} />
+
+      <div className="flex-1 relative">
+        {isLoading ? (
+          <div className="flex items-center justify-center h-full">
+            <p>Loading workspaces...</p>
+          </div>
+        ) : error ? (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-red-500">{error}</p>
+          </div>
+        ) : (
+          <MainContent workspaces={workspaces} />
+        )}
+      </div>
     </div>
   )
 }
-
-export default HomePage
-

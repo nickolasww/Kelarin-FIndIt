@@ -6,26 +6,14 @@ import CreateWorkspaceModal from "@/components/modal/createworkspace"
 import UpgradeModal from "@/components/modal/upgrademodal"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-
-interface Workspace {
-  id: number
-  name: string
-}
+import type { Workspace } from "@/services/workspace"
 
 interface SidebarProps {
-  onCreate: (name: string) => void
-  workspaces?: Workspace[]
+  workspaces: Workspace[]
+  onWorkspaceCreated: (workspace: Workspace) => void
 }
 
-interface AddTableData {
-  name: string
-  description: string
-  inviteEmail: string
-  usage: string | null
-  image: File | null
-}
-
-const Sidebar: React.FC<SidebarProps> = ({ onCreate, workspaces = [] }) => {
+const Sidebar: React.FC<SidebarProps> = ({ workspaces = [], onWorkspaceCreated }) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
@@ -50,13 +38,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onCreate, workspaces = [] }) => {
   const openUpgradeModal = () => {
     setIsUpgradeModalOpen(true)
   }
+
   const closeUpgradeModal = () => {
     setIsUpgradeModalOpen(false)
   }
 
-  const handleCreate = (formData: AddTableData) => {
-    console.log("Data Workspace yang Dibuat:", formData)
-    setIsModalOpen(false)
+  const handleCreateWorkspace = (workspaceData: Workspace) => {
+    onWorkspaceCreated(workspaceData)
   }
 
   const toggleSidebar = () => {
@@ -110,11 +98,18 @@ const Sidebar: React.FC<SidebarProps> = ({ onCreate, workspaces = [] }) => {
         <div className="space-y-2 mb-4">
           <h3 className="text-sm font-medium text-gray-700 mb-2">Workspaces</h3>
           {workspaces && workspaces.length > 0 ? (
-            workspaces.map((workspace) => (
-              <Link key={workspace.id} href={`/dashboard/${workspace.id}`} className="flex items-center py-1 px-2 rounded-md hover:bg-purple-100 cursor-pointer">
-                <p className="text-sm">{workspace.name}</p>
-              </Link>
-            ))
+            <div>
+              {workspaces.map((workspace) => (
+                // Ensure each workspace has a valid ID, or use a fallback
+                <Link
+                  key={workspace.id || `workspace-${Math.random().toString(36).substr(2, 9)}`}
+                  href={`/dashboard/${workspace.id || ""}`}
+                  className="flex items-center py-1 px-2 rounded-md hover:bg-purple-100 cursor-pointer"
+                >
+                  <p className="text-sm">{workspace.title || workspace.name || "Unnamed Workspace"}</p>
+                </Link>
+              ))}
+            </div>
           ) : (
             <p className="text-sm text-gray-500">No workspaces yet</p>
           )}
@@ -127,7 +122,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCreate, workspaces = [] }) => {
         </button>
       </div>
 
-      <CreateWorkspaceModal isOpen={isModalOpen} onClose={closeModal} onCreate={onCreate} />
+      <CreateWorkspaceModal isOpen={isModalOpen} onClose={closeModal} onCreate={handleCreateWorkspace} />
       <UpgradeModal isOpen={isUpgradeModalOpen} onClose={closeUpgradeModal} />
     </>
   )

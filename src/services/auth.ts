@@ -1,6 +1,3 @@
-// services/auth.ts
-// This file contains all authentication-related API calls
-
 export async function loginUser(email: string, password: string) {
     const response = await fetch("https://kelarin.bccdev.id/api/login", {
       method: "POST",
@@ -45,9 +42,6 @@ export async function loginUser(email: string, password: string) {
     return data
   }
   
-  /**
-   * Store user session data in localStorage
-   */
   export function storeUserSession(data: any) {
     localStorage.setItem("IsLoggedIn", "true")
     localStorage.setItem("name", data.name || data.user?.name || "User")
@@ -57,9 +51,6 @@ export async function loginUser(email: string, password: string) {
     }
   }
   
-  /**
-   * Clear user session data from localStorage
-   */
   export function clearUserSession() {
     localStorage.removeItem("IsLoggedIn")
     localStorage.removeItem("name")

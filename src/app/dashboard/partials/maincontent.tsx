@@ -1,28 +1,39 @@
 "use client"
 
 import type React from "react"
-import { useMemo, useState } from "react"
+import { useState, useMemo, useEffect } from "react"
 import WorkspaceCard from "@/components/card/workspacecard"
 import Input from "@/components/input/index"
 import StreakIcon from "@/assets/icon/StreakIcon.svg"
 import Image from "next/image"
-import { IoSearch } from "react-icons/io5";
-
-interface Workspace {
-  id: number
-  name: string
-}
+import { IoSearch } from "react-icons/io5"
+import type { Workspace } from "@/services/workspace"
 
 interface MainContentProps {
   workspaces: Workspace[]
 }
 
 function WorkspaceList({ workspaces }: { workspaces: Workspace[] }) {
+  // Debug the workspaces array
+  useEffect(() => {
+    console.log("Workspaces in WorkspaceList:", workspaces)
+  }, [workspaces])
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      {workspaces.map((workspace) => (
-        <WorkspaceCard key={workspace.id} workspace={workspace} />
-      ))}
+      {workspaces.map((workspace) => {
+        // Generate a fallback key if id is missing
+        const key = workspace.id ? `workspace-${workspace.id}` : `workspace-${Math.random().toString(36).substr(2, 9)}`
+
+        if (!workspace.id) {
+          console.warn("Workspace has no valid ID:", workspace)
+        }
+
+        // Log each workspace to debug
+        console.log("Rendering workspace:", workspace)
+
+        return <WorkspaceCard key={key} workspace={workspace} />
+      })}
     </div>
   )
 }
@@ -30,24 +41,41 @@ function WorkspaceList({ workspaces }: { workspaces: Workspace[] }) {
 const MainContent: React.FC<MainContentProps> = ({ workspaces }) => {
   const [searchTerm, setSearchTerm] = useState<string>("")
 
-  const filterWorkspaces = useMemo(() => {
-    return workspaces.filter((workspace) =>
-      workspace.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  },[workspaces,searchTerm])
+  // Debug the workspaces array
+  useEffect(() => {
+    console.log("Workspaces in MainContent:", workspaces)
+  }, [workspaces])
+
+  // Filter workspaces based on search term
+  const filteredWorkspaces = useMemo(() => {
+    if (!searchTerm.trim()) return workspaces
+
+    return workspaces.filter((workspace) => {
+      const name = workspace.name || ""
+      const title = workspace.title || ""
+      return (
+        name.toLowerCase().includes(searchTerm.toLowerCase()) || title.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    })
+  }, [workspaces, searchTerm])
+
+  // Get the most recent 3 workspaces
+  const recentWorkspaces = useMemo(() => {
+    return [...filteredWorkspaces].slice(-3).reverse()
+  }, [filteredWorkspaces])
 
   return (
-    <div className="flex-1 p-4 sm:p-8 shadow-md">
+    <div className="flex-1 p-4 sm:p-8 ">
       <div className="flex flex-col items-start gap-3 sm:gap-5 mb-3 sm:mb-4">
         <h1 className="text-xl sm:text-2xl font-semibold">Workspace</h1>
-        <div className="relative w-full sm:w-96"> 
+        <div className="relative w-full sm:w-96">
           <IoSearch className="absolute left-3 top-7 transform -translate-y-1/2 text-gray-400" />
           <Input
             type="text"
             value={searchTerm}
             label=""
             placeholder="Search..."
-            classname="border rounded-md py-2 px-4 pl-10 w-full" 
+            classname="border rounded-md py-2 px-4 pl-10 w-full"
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
@@ -55,28 +83,30 @@ const MainContent: React.FC<MainContentProps> = ({ workspaces }) => {
 
       <div className="absolute top-4 md:top-9 right-4 flex items-center gap-3">
         <span role="img" aria-label="fire" className="text-2xl">
-          <Image 
-            src={StreakIcon}
-            alt="Streak Icon"
-            width={24}
-            height={24}
-          />
+          <Image src={StreakIcon || "/placeholder.svg"} alt="Streak Icon" width={24} height={24} />
         </span>
         <span className="text-lg font-bold mr-2">365 Days</span>
       </div>
 
       <section className="mb-6 sm:mb-8">
         <h2 className="text-lg font-semibold mb-3 sm:mb-4">Recently Added</h2>
-        <WorkspaceList workspaces={workspaces.slice(-3).reverse()} />
+        {recentWorkspaces.length > 0 ? (
+          <WorkspaceList workspaces={recentWorkspaces} />
+        ) : (
+          <p className="text-gray-500">No workspaces yet. Create your first workspace!</p>
+        )}
       </section>
 
       <section>
         <h2 className="text-lg font-semibold mb-3 sm:mb-4">All Workspace</h2>
-        <WorkspaceList workspaces={filterWorkspaces} />
+        {filteredWorkspaces.length > 0 ? (
+          <WorkspaceList workspaces={filteredWorkspaces} />
+        ) : (
+          <p className="text-gray-500">No workspaces found.</p>
+        )}
       </section>
     </div>
   )
 }
 
 export default MainContent
-
