@@ -176,7 +176,9 @@ export async function getWorkspaces(): Promise<Workspace[]> {
 
       console.log("Extracted workspaces array:", workspacesArray)
 
-      const processedData = workspacesArray.map((workspace: any) => {
+      // Process each workspace to ensure it has all required fields
+      const processedData = workspacesArray.map((workspace :any ) => {
+        // Create a properly formatted workspace object
         const formattedWorkspace: Workspace = {
           id: workspace.id || Math.floor(Math.random() * 10000),
           name: workspace.title || workspace.name || "Unnamed Workspace",
@@ -193,6 +195,7 @@ export async function getWorkspaces(): Promise<Workspace[]> {
       console.log("Processed workspaces:", processedData)
       return processedData
     } else {
+      // If not JSON, get the text response for better error information
       const textResponse = await response.text()
       console.error("Non-JSON response:", textResponse)
       throw new Error(`Server returned non-JSON response: ${response.status} ${response.statusText}`)
@@ -200,6 +203,7 @@ export async function getWorkspaces(): Promise<Workspace[]> {
   } catch (error) {
     console.error("Error fetching workspaces:", error)
 
+    // If we're in development mode, return mock data for testing
     if (process.env.NODE_ENV === "development") {
       console.warn("Returning mock workspace data for development")
       return []
@@ -233,11 +237,13 @@ export async function inviteToWorkspace(workspaceId: number, email: string, role
     const response = await fetch(`https://kelarin.bccdev.id/api/workspace/${workspaceId}/share`, {
       method: "POST",
       headers: {
+        // Don't set Content-Type when using FormData, the browser will set it with the boundary
         Authorization: `Bearer ${token}`,
       },
       body: formData,
     })
 
+    // Check if the response is JSON
     const contentType = response.headers.get("content-type")
     console.log("API response content type:", contentType)
 
@@ -251,6 +257,7 @@ export async function inviteToWorkspace(workspaceId: number, email: string, role
 
       return responseData
     } else {
+      // If not JSON, get the text response for better error information
       const textResponse = await response.text()
       console.error("Non-JSON response:", textResponse)
 
@@ -258,6 +265,53 @@ export async function inviteToWorkspace(workspaceId: number, email: string, role
     }
   } catch (error) {
     console.error("Error inviting to workspace:", error)
+    throw error
+  }
+}
+
+/**
+ * Delete a workspace
+ * @param workspaceId The ID of the workspace to delete
+ */
+export async function deleteWorkspace(workspaceId: number): Promise<any> {
+  const token = localStorage.getItem("token")
+
+  if (!token) {
+    throw new Error("Authentication required")
+  }
+
+  try {
+    console.log(`Deleting workspace ${workspaceId}`)
+
+    const response = await fetch(`https://kelarin.bccdev.id/api/workspace/${workspaceId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    // Check if the response is JSON
+    const contentType = response.headers.get("content-type")
+    console.log("API response content type:", contentType)
+
+    if (contentType && contentType.includes("application/json")) {
+      const responseData = await response.json()
+      console.log("Delete response:", responseData)
+
+      if (!response.ok) {
+        throw new Error(responseData.message || `Error: ${response.status} ${response.statusText}`)
+      }
+
+      return responseData
+    } else {
+      // If not JSON, get the text response for better error information
+      const textResponse = await response.text()
+      console.error("Non-JSON response:", textResponse)
+
+      throw new Error(`Server returned non-JSON response: ${response.status} ${response.statusText}`)
+    }
+  } catch (error) {
+    console.error("Error deleting workspace:", error)
     throw error
   }
 }

@@ -10,14 +10,21 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // Fetch workspaces on component mount
   const fetchWorkspaces = useCallback(async () => {
     try {
       setIsLoading(true)
       const data = await getWorkspaces()
+      console.log("Fetched workspaces in dashboard:", data)
+
+      // Process the workspaces to ensure they have all required fields
       const processedWorkspaces = Array.isArray(data)
         ? data.map((workspace) => ({
             ...workspace,
+            // Ensure each workspace has an ID (use a random one if missing)
             id: workspace.id || Math.floor(Math.random() * 100000),
+            // Ensure name and title are set
+            name: workspace.title || workspace.name || "Unnamed Workspace",
             title: workspace.title || workspace.name || "Unnamed Workspace",
           }))
         : []
@@ -39,18 +46,29 @@ export default function DashboardPage() {
   const handleWorkspaceCreated = (newWorkspace: Workspace) => {
     console.log("New workspace created:", newWorkspace)
 
+    // Process the new workspace to ensure it has all required fields
     const processedWorkspace = {
       ...newWorkspace,
       id: newWorkspace.id || Math.floor(Math.random() * 100000),
+      name: newWorkspace.title || newWorkspace.name || "Unnamed Workspace",
       title: newWorkspace.title || newWorkspace.name || "Unnamed Workspace",
     }
 
     console.log("Processed new workspace:", processedWorkspace)
 
     setWorkspaces((prevWorkspaces) => {
+      // Ensure prevWorkspaces is an array
       const workspaceArray = Array.isArray(prevWorkspaces) ? prevWorkspaces : []
+      // Add the new workspace to the array
       return [...workspaceArray, processedWorkspace]
     })
+  }
+
+  const handleWorkspaceDeleted = (workspaceId: number) => {
+    console.log("Deleting workspace with ID:", workspaceId)
+
+    // Remove the workspace from state
+    setWorkspaces((prevWorkspaces) => prevWorkspaces.filter((workspace) => workspace.id !== workspaceId))
   }
 
   return (
@@ -67,7 +85,7 @@ export default function DashboardPage() {
             <p className="text-red-500">{error}</p>
           </div>
         ) : (
-          <MainContent workspaces={workspaces} />
+          <MainContent workspaces={workspaces} onWorkspaceDeleted={handleWorkspaceDeleted} />
         )}
       </div>
     </div>

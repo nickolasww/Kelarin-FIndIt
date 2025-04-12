@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo } from "react"
 import WorkspaceCard from "@/components/card/workspacecard"
 import Input from "@/components/input/index"
 import StreakIcon from "@/assets/icon/StreakIcon.svg"
@@ -11,28 +11,31 @@ import type { Workspace } from "@/services/workspace"
 
 interface MainContentProps {
   workspaces: Workspace[]
+  onWorkspaceDeleted: (workspaceId: number) => void
 }
 
-function WorkspaceList({ workspaces }: { workspaces: Workspace[] }) {
-  useEffect(() => {
-    console.log("Workspaces in WorkspaceList:", workspaces)
-  }, [workspaces])
-
+function WorkspaceList({ workspaces, onDelete }: { workspaces: Workspace[]; onDelete: (workspaceId: number) => void }) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {workspaces.map((workspace) => {
+        // Generate a fallback key if id is missing
         const key = workspace.id ? `workspace-${workspace.id}` : `workspace-${Math.random().toString(36).substr(2, 9)}`
 
-        return <WorkspaceCard key={key} workspace={workspace} />
+        if (!workspace.id) {
+          console.warn("Workspace has no valid ID:", workspace)
+          return null
+        }
+
+        return <WorkspaceCard key={key} workspace={workspace} onDelete={onDelete} />
       })}
     </div>
   )
 }
 
-const MainContent: React.FC<MainContentProps> = ({ workspaces }) => {
+const MainContent: React.FC<MainContentProps> = ({ workspaces, onWorkspaceDeleted }) => {
   const [searchTerm, setSearchTerm] = useState<string>("")
 
-
+  // Filter workspaces based on search term
   const filteredWorkspaces = useMemo(() => {
     if (!searchTerm.trim()) return workspaces
 
@@ -45,9 +48,15 @@ const MainContent: React.FC<MainContentProps> = ({ workspaces }) => {
     })
   }, [workspaces, searchTerm])
 
+  // Get the most recent 3 workspaces
   const recentWorkspaces = useMemo(() => {
-    return [...workspaces].slice(-3).reverse()
-  }, [workspaces])
+    return [...filteredWorkspaces].slice(-3).reverse()
+  }, [filteredWorkspaces])
+
+  // Handle workspace deletion
+  const handleWorkspaceDelete = (workspaceId: number) => {
+    onWorkspaceDeleted(workspaceId)
+  }
 
   return (
     <div className="flex-1 p-4 sm:p-8 ">
@@ -76,7 +85,7 @@ const MainContent: React.FC<MainContentProps> = ({ workspaces }) => {
       <section className="mb-6 sm:mb-8">
         <h2 className="text-lg font-semibold mb-3 sm:mb-4">Recently Added</h2>
         {recentWorkspaces.length > 0 ? (
-          <WorkspaceList workspaces={recentWorkspaces} />
+          <WorkspaceList workspaces={recentWorkspaces} onDelete={handleWorkspaceDelete} />
         ) : (
           <p className="text-gray-500">No workspaces yet. Create your first workspace!</p>
         )}
@@ -85,7 +94,7 @@ const MainContent: React.FC<MainContentProps> = ({ workspaces }) => {
       <section>
         <h2 className="text-lg font-semibold mb-3 sm:mb-4">All Workspace</h2>
         {filteredWorkspaces.length > 0 ? (
-          <WorkspaceList workspaces={filteredWorkspaces} />
+          <WorkspaceList workspaces={filteredWorkspaces} onDelete={handleWorkspaceDelete} />
         ) : (
           <p className="text-gray-500">No workspaces found.</p>
         )}

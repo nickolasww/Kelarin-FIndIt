@@ -100,7 +100,6 @@ const Sidebar: React.FC<SidebarProps> = ({ workspaces = [], onWorkspaceCreated }
           {workspaces && workspaces.length > 0 ? (
             <div>
               {workspaces.map((workspace) => (
-                // Ensure each workspace has a valid ID, or use a fallback
                 <Link
                   key={workspace.id || `workspace-${Math.random().toString(36).substr(2, 9)}`}
                   href={`/dashboard/${workspace.id || ""}`}
