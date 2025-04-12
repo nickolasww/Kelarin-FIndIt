@@ -15,6 +15,7 @@ interface WorkspaceDetailPageProps {
   params: {
     id: string
   }
+  onDeleteWorkspace?: (workspaceId: number) => void
 }
 
 interface Workspace {
@@ -46,7 +47,7 @@ interface LinkItem {
   selected: boolean
 }
 
-const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params }) => {
+const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDeleteWorkspace }) => {
   const router = useRouter()
   const [workspace, setWorkspace] = useState<Workspace | null>(null)
   const [tasks, setTasks] = useState<{
@@ -63,6 +64,9 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params }) => 
   const [isTableModalOpen, setIsTableModalOpen] = useState(false)
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false)
   const [isNotificationOpen, setIsNotificationOpen] = useState(false)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [statusMessage, setStatusMessage] = useState<{ type: "success" | "error"; message: string } | null>(null)
   const [isHeaderExpanded, setIsHeaderExpanded] = useState(false)
   const [links, setLinks] = useState([
     { title: "Link Meet", url: "clips.id/Meet_BCC-Nekad", selected: false },
@@ -95,11 +99,19 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params }) => 
     setIsTaskModalOpen(false)
   }
 
-  const OpenNotification = () => {
+  const openNotification = () => {
     setIsNotificationOpen(true)
   }
-  const CloseNotification = () => {
+  const closeNotification = () => {
     setIsNotificationOpen(false)
+  }
+
+  const openDeleteModal = () => {
+    setIsDeleteModalOpen(true)
+    setStatusMessage(null)
+  }
+  const closeDeleteModal = () => {
+    setIsDeleteModalOpen(false)
   }
 
   const handleCreate = (formData: AddTableData) => {
@@ -116,6 +128,13 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params }) => 
     closeTableModal()
   }
 
+  const handleDeleteClick = () => {
+    console.log("Delete button clicked for workspace:", workspace?.id)
+    if (workspace && onDeleteWorkspace) {
+      onDeleteWorkspace(workspace.id)
+    }
+  }
+
   useEffect(() => {
     const savedWorkspaces = localStorage.getItem("workspaces")
     if (savedWorkspaces) {
@@ -125,7 +144,9 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params }) => 
 
         if (foundWorkspace) {
           setWorkspace(foundWorkspace)
+          console.log("Found workspace:", foundWorkspace)
         } else {
+          console.log("Workspace not found in localStorage, redirecting to dashboard")
           router.push("/dashboard")
         }
       } catch (error) {
@@ -133,6 +154,7 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params }) => 
         router.push("/NotFound")
       }
     } else {
+      console.log("No workspaces in localStorage, redirecting to dashboard")
       router.push("/dashboard")
     }
 
@@ -265,12 +287,14 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params }) => 
                 <p className="text-gray-600">Description</p>
               </div>
 
-              <div className="flex gap-1">
+              <div className="flex gap-3">
                 <div className="">
                   <Image
-                    src={EditIcon}
+                    src={EditIcon || "/placeholder.svg"}
                     alt="editIcon"
                     className="cursor-pointer"
+                    width={24}
+                    height={24}
                     onClick={(e) => {
                       e.stopPropagation()
                       openTaskModal()
@@ -280,23 +304,23 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params }) => 
 
                 <div>
                   <Image
-                    src={Notification}
+                    src={Notification || "/placeholder.svg"}
                     alt="kolaborasi"
                     className="cursor-pointer"
+                    width={24}
+                    height={24}
                     onClick={(e) => {
                       e.stopPropagation()
-                      OpenNotification()
+                      openNotification()
                     }}
                   />
-                </div>
+                </div>  
               </div>
             </div>
 
             <div
               className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                isHeaderExpanded
-                  ? "max-h-96 opacity-100 border-gray-200"
-                  : "max-h-0 opacity-0 border-gray-200"
+                isHeaderExpanded ? "max-h-96 opacity-100 border-gray-200" : "max-h-0 opacity-0 border-gray-200"
               }`}
             >
               <div className="mt-6 pt-4 border-gray-200">
@@ -367,7 +391,7 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params }) => 
                     className="flex items-center justify-center gap-2 px-6 py-2 bg-purple-600 rounded-md text-white"
                     onClick={(e) => {
                       e.stopPropagation()
-                      // Add table logic here
+                      openTableModal()
                     }}
                   >
                     <svg
@@ -425,7 +449,13 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params }) => 
               onAddTask={handleAddTask}
             />
 
-            <button className="fixed bottom-0 right-0 m-10 flex-shrink-0 flex items-center justify-center gap-2 px-6 py-2 bg-purple-600 rounded-sm text-white">
+            <button
+              className="fixed bottom-0 right-0 m-10 flex-shrink-0 flex items-center justify-center gap-2 px-6 py-2 bg-purple-600 rounded-sm text-white"
+              onClick={(e) => {
+                e.stopPropagation()
+                openTableModal()
+              }}
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-4 w-4"
@@ -441,11 +471,7 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params }) => 
         </div>
       </div>
 
-      <TableModal
-        isOpen={isTableModalOpen}
-        onClose={closeTableModal}
-        onSubmit={handleCreate}
-      />
+      <TableModal isOpen={isTableModalOpen} onClose={closeTableModal} onSubmit={handleCreate} />
       <TaskModal
         isOpen={isTaskModalOpen}
         onClose={closeTaskModal}
@@ -453,12 +479,7 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params }) => 
         onRemove={() => {}}
         onUpdate={() => {}}
       />
-      <NotificationModal
-        isOpen={isNotificationOpen}
-        onClose={CloseNotification}
-        
-      />
-
+      <NotificationModal isOpen={isNotificationOpen} onClose={closeNotification} />
     </div>
   )
 }

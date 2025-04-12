@@ -101,7 +101,7 @@ export default function Login() {
               <Button
                 text={isLoading ? "Signing In..." : "Sign In"}
                 className={`mt-6 w-full bg-purple-800 p-3 font-semibold rounded-lg text-white ${isLoading ? "opacity-70 cursor-not-allowed" : "cursor-pointer"}`}
-                onclick={handleLogin}
+                onClick={handleLogin}
                 disabled={isLoading}
               />
             </div>
