@@ -3,16 +3,16 @@ import React from 'react'
 interface ButtonProps {
   text: string;
   className?: string;
-  onclick?: () => void;
+  onClick?: () => void;
   disabled?: boolean;
 
 }
 
-const Button: React.FC<ButtonProps> = ({ text,className,onclick,disabled }) => {
+const Button: React.FC<ButtonProps> = ({ text,className,onClick,disabled }) => {
     return (
         <button
         className={className}
-        onClick={onclick}
+        onClick={onClick}
         disabled={disabled}
       >
         {text}

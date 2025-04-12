@@ -16,7 +16,7 @@ const InviteModal: React.FC<InviteFriendModalProps> = ({
    const [isModalOpen, setIsModalOpen] = useState(false)
    const [inviteMessage, setInviteMessage] = useState<string | null>(null)
    const [error, setError] = useState<string | null>(null)
-    const [isInviting, setIsInviting] = useState(false)
+   const [isInviting, setIsInviting] = useState(false)
 
 
      useEffect(() => {
