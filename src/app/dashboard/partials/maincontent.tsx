@@ -14,7 +14,6 @@ interface MainContentProps {
 }
 
 function WorkspaceList({ workspaces }: { workspaces: Workspace[] }) {
-  // Debug the workspaces array
   useEffect(() => {
     console.log("Workspaces in WorkspaceList:", workspaces)
   }, [workspaces])
@@ -22,15 +21,7 @@ function WorkspaceList({ workspaces }: { workspaces: Workspace[] }) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {workspaces.map((workspace) => {
-        // Generate a fallback key if id is missing
         const key = workspace.id ? `workspace-${workspace.id}` : `workspace-${Math.random().toString(36).substr(2, 9)}`
-
-        if (!workspace.id) {
-          console.warn("Workspace has no valid ID:", workspace)
-        }
-
-        // Log each workspace to debug
-        console.log("Rendering workspace:", workspace)
 
         return <WorkspaceCard key={key} workspace={workspace} />
       })}
@@ -41,12 +32,7 @@ function WorkspaceList({ workspaces }: { workspaces: Workspace[] }) {
 const MainContent: React.FC<MainContentProps> = ({ workspaces }) => {
   const [searchTerm, setSearchTerm] = useState<string>("")
 
-  // Debug the workspaces array
-  useEffect(() => {
-    console.log("Workspaces in MainContent:", workspaces)
-  }, [workspaces])
 
-  // Filter workspaces based on search term
   const filteredWorkspaces = useMemo(() => {
     if (!searchTerm.trim()) return workspaces
 
@@ -59,10 +45,9 @@ const MainContent: React.FC<MainContentProps> = ({ workspaces }) => {
     })
   }, [workspaces, searchTerm])
 
-  // Get the most recent 3 workspaces
   const recentWorkspaces = useMemo(() => {
-    return [...filteredWorkspaces].slice(-3).reverse()
-  }, [filteredWorkspaces])
+    return [...workspaces].slice(-3).reverse()
+  }, [workspaces])
 
   return (
     <div className="flex-1 p-4 sm:p-8 ">

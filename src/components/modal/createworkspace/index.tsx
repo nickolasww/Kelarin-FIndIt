@@ -3,7 +3,7 @@
 import type React from "react"
 import { useState, useEffect } from "react"
 import Input from "@/components/input/index"
-import { createWorkspace } from "@/services/workspace"
+import { createWorkspace, inviteToWorkspace } from "@/services/workspace"
 import { X } from "lucide-react"
 
 interface CreateWorkspaceModalProps {
@@ -19,7 +19,9 @@ const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({ isOpen, onC
   const [description, setDescription] = useState("")
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [isInviting, setIsInviting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [inviteMessage, setInviteMessage] = useState<string | null>(null)
 
   useEffect(() => {
     setIsModalOpen(isOpen)
@@ -28,6 +30,33 @@ const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({ isOpen, onC
   const validateEmail = (email: string): boolean => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     return regex.test(email)
+  }
+
+  const handleInvite = async () => {
+    // Validate email
+    if (!email.trim()) {
+      setError("Email is required to invite")
+      return
+    }
+
+    if (!validateEmail(email.trim())) {
+      setError("Invalid email format")
+      return
+    }
+
+    // Clear previous messages
+    setError(null)
+    setInviteMessage(null)
+    setIsInviting(true)
+
+    try {
+      setInviteMessage("Email added. Invitation will be sent when workspace is created.")
+    } catch (err) {
+      console.error("Error adding email for invitation:", err)
+      setError("Failed to add email. Please try again.")
+    } finally {
+      setIsInviting(false)
+    }
   }
 
   const handleCreate = async () => {
@@ -41,16 +70,10 @@ const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({ isOpen, onC
       return
     }
 
-    if (email.trim() && !validateEmail(email.trim())) {
-      setError("Invalid email format")
-      return
-    }
-
     setError(null)
     setIsLoading(true)
 
     try {
-
       const workspaceData = {
         title: workspaceName.trim(),
         purpose: workspaceType,
@@ -60,11 +83,20 @@ const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({ isOpen, onC
 
       const response = await createWorkspace(workspaceData)
       console.log("Workspace created successfully:", response)
+      if (email.trim() && validateEmail(email.trim())) {
+        try {
+          await inviteToWorkspace(response.id, email.trim())
+          console.log(`Invitation sent to ${email.trim()}`)
+        } catch (inviteErr) {
+          console.error("Error sending invitation:", inviteErr)
+        }
+      }
 
       setWorkspaceName("")
       setDescription("")
       setEmail("")
       setWorkspaceType(null)
+      setInviteMessage(null)
 
       onCreate(response)
       onClose()
@@ -110,10 +142,15 @@ const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({ isOpen, onC
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
-            <button className="bg-purple-500 hover:bg-purple-600 text-white rounded-lg px-4 py-2 sm:px-6 sm:py-3 flex items-center justify-center">
-              Invite
+            <button
+              className={`bg-purple-500 hover:bg-purple-600 text-white rounded-lg px-4 py-2 sm:px-6 sm:py-3 flex items-center justify-center ${isInviting ? "opacity-70 cursor-not-allowed" : ""}`}
+              onClick={handleInvite}
+              disabled={isInviting}
+            >
+              {isInviting ? "Adding..." : "Invite"}
             </button>
           </div>
+          {inviteMessage && <p className="mt-2 text-sm text-green-600">{inviteMessage}</p>}
         </div>
 
         <div className="mb-6 sm:mb-8">
