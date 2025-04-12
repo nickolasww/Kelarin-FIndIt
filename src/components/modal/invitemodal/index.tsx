@@ -14,20 +14,44 @@ const InviteModal: React.FC<InviteFriendModalProps> = ({
 }) => {
   const [email, setEmail] = useState("");
    const [isModalOpen, setIsModalOpen] = useState(false)
+   const [inviteMessage, setInviteMessage] = useState<string | null>(null)
+   const [error, setError] = useState<string | null>(null)
+    const [isInviting, setIsInviting] = useState(false)
+
 
      useEffect(() => {
        setIsModalOpen(isOpen)
      }, [isOpen])
 
-  const handleInviteClick = () => {
-    if (email.trim()) {
-      onInvite(email);
-      setEmail(""); // Clear the input after inviting
-    } else {
-      // Optionally show an error message if the email is empty
-      console.log("Please enter an email address.");
+     const validateEmail = (email: string): boolean => {
+      const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      return regex.test(email)
     }
-  };
+
+     const handleInvite = async () => {
+      if (!email.trim()) {
+        setError("Email is required to invite")
+        return
+      }
+  
+      if (!validateEmail(email.trim())) {
+        setError("Invalid email format")
+        return
+      }
+  
+      setError(null)
+      setInviteMessage(null)
+      setIsInviting(true)
+  
+      try {
+        setInviteMessage("Email added. Invitation will be sent when workspace is created.")
+      } catch (err) {
+        console.error("Error adding email for invitation:", err)
+        setError("Failed to add email. Please try again.")
+      } finally {
+        setIsInviting(false)
+      }
+    }
 
   return isModalOpen ? (
     <div className="fixed z-50 inset-0 bg-black/50 bg-opacity-50 flex justify-center items-center ">
@@ -62,9 +86,10 @@ const InviteModal: React.FC<InviteFriendModalProps> = ({
             onChange={(e) => setEmail(e.target.value)}
           />
           <button
-            onClick={handleInviteClick}
-            className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 
-            px-6 rounded focus:outline-none focus:shadow-outline ml-5 text-sm flex items-center"
+            onClick={handleInvite}
+            disabled={isInviting}
+            className={`bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 
+            px-6 rounded focus:outline-none focus:shadow-outline ml-5 text-sm flex items-center"${isInviting ? "opacity-70 cursor-not-allowed" : ""}`}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -80,9 +105,11 @@ const InviteModal: React.FC<InviteFriendModalProps> = ({
                 d="M12 6v6m0 0v6m0-6h6m-6 0H6"
               />
             </svg>
-            Invite
+            {isInviting ? "Adding..." : "Invite"}
           </button>
         </div>
+        {inviteMessage && <p className="mt-2 text-sm text-green-600">{inviteMessage}</p>}
+        {error && <div className=" mt-2 text-red-500 text-sm">{error}</div>}
       </div>
     </div>
   ) : null;

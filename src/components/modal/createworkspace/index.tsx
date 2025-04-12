@@ -33,7 +33,6 @@ const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({ isOpen, onC
   }
 
   const handleInvite = async () => {
-    // Validate email
     if (!email.trim()) {
       setError("Email is required to invite")
       return
@@ -44,7 +43,6 @@ const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({ isOpen, onC
       return
     }
 
-    // Clear previous messages
     setError(null)
     setInviteMessage(null)
     setIsInviting(true)
