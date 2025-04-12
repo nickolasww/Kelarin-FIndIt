@@ -6,8 +6,8 @@ import Button from "@/components/button"
 import Logo from "@/assets/icon/Logo.svg"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
+import { loginUser, storeUserSession } from "@/services/auth"
 
-const ValidUser = [{ email: "Nickolaswewe@gmail.com", password: "Nickolas29", name: "Nickolas Wewe" }]
 
 export default function Login() {
   const [email, setEmail] = useState<string>("")
@@ -34,20 +34,17 @@ export default function Login() {
 
     setIsLoading(true)
 
-    await new Promise((resolve) => setTimeout(resolve, 800))
+    try {
+      const userData = await loginUser(trimmedEmail, trimmedPassword)
 
-    const validUser = ValidUser.find(
-      (user) => user.email.toLowerCase() === trimmedEmail.toLowerCase() && user.password === trimmedPassword,
-    )
+      storeUserSession(userData)
 
-    setIsLoading(false)
-
-    if (validUser) {
-      localStorage.setItem("IsloggedIn", "true")
-      localStorage.setItem("name", validUser.name)
       router.push("/dashboard")
-    } else {
-      setError("Invalid email or password!")
+    } catch (error) {
+      console.error(error)
+      setError(error instanceof Error ? error.message : "An error occurred during login. Please try again.")
+    } finally {
+      setIsLoading(false)
     }
   }
 

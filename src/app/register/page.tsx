@@ -4,13 +4,57 @@ import Input from "@/components/input";
 import Button from "@/components/button";
 import Logo from "@/assets/icon/Logo.svg";
 import Image from "next/image";
+import { useRouter } from "next/navigation"
+import { registerUser } from "@/services/auth";
 
 export default function Login() {
   const [fullName, setFullName] = useState<string>("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const router = useRouter();
 
+  const handleRegister = async () => {
+    setError("")
 
+    if (!fullName || !email || !password) {
+      setError("All fields are required!")
+      return
+    }
+
+    const trimmedName = fullName.trim()
+    const trimmedEmail = email.trim()
+    const trimmedPassword = password.trim()
+
+    if (!trimmedName || !trimmedEmail || !trimmedPassword) {
+      setError("Fields cannot be just whitespace!")
+      return
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(trimmedEmail)) {
+      setError("Please enter a valid email address!")
+      return
+    }
+
+    if (trimmedPassword.length < 6) {
+      setError("Password must be at least 6 characters long!")
+      return
+    }
+
+    setIsLoading(true)
+
+    try {
+      const userData = await registerUser(trimmedName, trimmedEmail, trimmedPassword)
+      router.push("/login")
+    } catch (error) {
+      console.error(error)
+      setError(error instanceof Error ? error.message : "An error occurred during registration. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
   return (
     <section className="flex">
       <div className="hidden lg:block lg:w-[40rem]">
@@ -51,8 +95,9 @@ export default function Login() {
               label="Full Name"
               placeholder=""
               type="fullname"
-              value={email}
-              onChange={(e) => setPassword(e.target.value)}
+              value={fullName}
+              classname="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-4"
+              onChange={(e) => setFullName(e.target.value)}
             />
 
             <Input
@@ -75,8 +120,12 @@ export default function Login() {
 
             <div className="flex flex-col items-center">
               <Button
-                text="Sign Up"
-                className="mt-6 w-full bg-purple-800 p-3 font-semibold rounded-lg text-white cursor-pointer"
+                text={isLoading? "Signing Up..." : "Sign Up"}
+                className={`mt-6 w-full bg-purple-800 p-3 font-semibold rounded-lg text-white ${
+                  isLoading ? "opacity-70 cursor-not-allowed" : "cursor-pointer"
+                }`}
+                onclick={handleRegister}
+                disabled={isLoading}
               />
             </div>
           </div>
