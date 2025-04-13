@@ -10,6 +10,7 @@ import Header from "@/app/dashboard/partials/header"
 import StreakModal from "@/components/modal/streakmodal"
 import { useRouter, useParams } from "next/navigation"
 import { getAuthToken, isAuthenticated } from "@/services/validation"
+import Call from "@/app/dashboard/[id]/call/page"
 
 const DashboardPage = () => {
   const router = useRouter()
@@ -26,7 +27,6 @@ const DashboardPage = () => {
   const [statusMessage, setStatusMessage] = useState<{ type: "success" | "error"; message: string } | null>(null)
   const [isInitialized, setIsInitialized] = useState(false)
 
-  // Set the current workspace ID from the URL parameter when the component mounts
   useEffect(() => {
     if (currentPageId) {
       const numericId = Number.parseInt(currentPageId, 10)
@@ -34,7 +34,6 @@ const DashboardPage = () => {
         setCurrentWorkspaceId(numericId)
         console.log("Set current workspace ID from URL:", numericId)
 
-        // Check if this workspace exists in localStorage
         const savedWorkspaces = localStorage.getItem("workspaces")
         if (savedWorkspaces) {
           try {
@@ -43,18 +42,13 @@ const DashboardPage = () => {
 
             if (!foundWorkspace) {
               console.log("Workspace not found in localStorage, checking if it's a new workspace")
-              // This might be a newly created workspace that hasn't been saved to localStorage yet
-              // We'll check the sessionStorage for temporary data
               const tempWorkspace = sessionStorage.getItem(`temp_workspace_${numericId}`)
               if (tempWorkspace) {
                 console.log("Found temporary workspace data in sessionStorage")
                 try {
                   const parsedTempWorkspace = JSON.parse(tempWorkspace)
-                  // Add it to localStorage
                   parsedWorkspaces.push(parsedTempWorkspace)
                   localStorage.setItem("workspaces", JSON.stringify(parsedWorkspaces))
-                  console.log("Added temporary workspace to localStorage")
-                  // Clear the temporary data
                   sessionStorage.removeItem(`temp_workspace_${numericId}`)
                 } catch (error) {
                   console.error("Error parsing temporary workspace data:", error)
@@ -224,10 +218,10 @@ const DashboardPage = () => {
       contentToRender = <Workspace params={{ id: currentPageId || "1" }} onDeleteWorkspace={openDeleteModal} />
       break
     case "chat":
-      contentToRender = <Chat />
+      contentToRender = <Call/>
       break
     case "call":
-      contentToRender = <div>Halaman Panggilan akan datang!</div> // Placeholder
+      contentToRender =  <Chat />
       break
     default:
       contentToRender = <Workspace params={{ id: currentPageId || "1" }} onDeleteWorkspace={openDeleteModal} />

@@ -12,7 +12,7 @@ import LogoutIcon from "@/assets/icon/logoutIcon.svg"
 
 interface WorkspaceSidebarProps {
   onNavigate: (content: "workspace" | "call" | "chat" | "settings" | "logout") => void
-  OpenDeleteModal: (workspaceId?: number) => void // Updated to accept optional workspaceId
+  OpenDeleteModal: (workspaceId?: number) => void
 }
 
 const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({ onNavigate, OpenDeleteModal }) => {
@@ -22,8 +22,6 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({ onNavigate, OpenDel
     setActiveMenu(menu)
 
     if (menu === "settings") {
-      // Open delete modal without a specific workspace ID
-      // This will show a general settings modal or handle current workspace
       OpenDeleteModal()
     } else {
       onNavigate(menu)
@@ -31,7 +29,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({ onNavigate, OpenDel
   }
 
   return (
-    <div className="pl-5 bg-white flex flex-col items-center min-h-screen pt-4">
+    <div className="bg-white flex flex-col items-center min-h-screen pt-4 w-full sm:w-20"> {/* Responsive width */}
       {/* Navigation Buttons */}
       <div className="flex flex-col items-center space-y-6 flex-grow">
         {/* Logo */}
