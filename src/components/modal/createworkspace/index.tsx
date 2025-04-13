@@ -81,6 +81,14 @@ const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({ isOpen, onC
 
       const response = await createWorkspace(workspaceData)
       console.log("Workspace created successfully:", response)
+
+      // Make sure we're passing the complete workspace data with name and title
+      const completeWorkspace = {
+        ...response,
+        name: response.title || workspaceName.trim(),
+        title: response.title || workspaceName.trim(),
+      }
+
       if (email.trim() && validateEmail(email.trim())) {
         try {
           await inviteToWorkspace(response.id, email.trim())
@@ -96,7 +104,7 @@ const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({ isOpen, onC
       setWorkspaceType(null)
       setInviteMessage(null)
 
-      onCreate(response)
+      onCreate(completeWorkspace)
       onClose()
     } catch (err) {
       console.error("Error creating workspace:", err)

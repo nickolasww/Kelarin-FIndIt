@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import WorkspaceCard from "@/components/card/workspacecard"
 import Input from "@/components/input/index"
 import StreakIcon from "@/assets/icon/StreakIcon.svg"
@@ -15,6 +15,11 @@ interface MainContentProps {
 }
 
 function WorkspaceList({ workspaces, onDelete }: { workspaces: Workspace[]; onDelete: (workspaceId: number) => void }) {
+  // Log workspaces to help with debugging
+  useEffect(() => {
+    console.log("WorkspaceList rendering with workspaces:", workspaces)
+  }, [workspaces])
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {workspaces.map((workspace) => {
@@ -34,6 +39,11 @@ function WorkspaceList({ workspaces, onDelete }: { workspaces: Workspace[]; onDe
 
 const MainContent: React.FC<MainContentProps> = ({ workspaces, onWorkspaceDeleted }) => {
   const [searchTerm, setSearchTerm] = useState<string>("")
+
+  // Log workspaces to help with debugging
+  useEffect(() => {
+    console.log("MainContent rendering with workspaces:", workspaces)
+  }, [workspaces])
 
   // Filter workspaces based on search term
   const filteredWorkspaces = useMemo(() => {

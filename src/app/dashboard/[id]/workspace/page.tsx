@@ -10,6 +10,7 @@ import Notification from "@/assets/icon/Notification.png"
 import TaskModal from "@/components/modal/addtaskmodal"
 import TableModal from "@/components/modal/addtablemodal"
 import NotificationModal from "@/components/modal/notificationmodal"
+import { getAuthToken } from "@/services/validation"
 
 interface WorkspaceDetailPageProps {
   params: {
@@ -21,6 +22,9 @@ interface WorkspaceDetailPageProps {
 interface Workspace {
   id: number
   name: string
+  title?: string
+  purpose?: string
+  description?: string
 }
 
 interface Task {
@@ -68,10 +72,13 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
   const [isDeleting, setIsDeleting] = useState(false)
   const [statusMessage, setStatusMessage] = useState<{ type: "success" | "error"; message: string } | null>(null)
   const [isHeaderExpanded, setIsHeaderExpanded] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [links, setLinks] = useState([
     { title: "Link Meet", url: "clips.id/Meet_BCC-Nekad", selected: false },
     { title: "Link Dive", url: "clips.id/Nekad", selected: true },
   ])
+  const [retryCount, setRetryCount] = useState(0)
+  const [isInitialized, setIsInitialized] = useState(false)
 
   const toggleHeader = () => {
     setIsHeaderExpanded(!isHeaderExpanded)
@@ -135,31 +142,151 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
     }
   }
 
-  useEffect(() => {
-    const savedWorkspaces = localStorage.getItem("workspaces")
-    if (savedWorkspaces) {
-      try {
-        const parsedWorkspaces: Workspace[] = JSON.parse(savedWorkspaces)
-        const foundWorkspace = parsedWorkspaces.find((w) => w.id === Number.parseInt(params.id))
+  // Function to fetch workspace from API
+  const fetchWorkspaceFromAPI = async (workspaceId: number) => {
+    try {
+      console.log("Fetching workspace from API:", workspaceId)
+      setIsLoading(true)
 
-        if (foundWorkspace) {
-          setWorkspace(foundWorkspace)
-          console.log("Found workspace:", foundWorkspace)
-        } else {
-          console.log("Workspace not found in localStorage, redirecting to dashboard")
-          router.push("/dashboard")
-        }
-      } catch (error) {
-        console.error("Error parsing workspaces from localStorage:", error)
-        router.push("/NotFound")
+      const token = getAuthToken()
+      if (!token) {
+        console.error("No authentication token found")
+        setStatusMessage({
+          type: "error",
+          message: "Authentication failed. Please log in again.",
+        })
+        setIsLoading(false)
+        return null
       }
-    } else {
-      console.log("No workspaces in localStorage, redirecting to dashboard")
-      router.push("/dashboard")
+
+      const response = await fetch(`https://kelarin.bccdev.id/api/workspace/${workspaceId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch workspace: ${response.status}`)
+      }
+
+      const data = await response.json()
+      console.log("Workspace data from API:", data)
+
+      // Ensure the workspace has name and title properties
+      const processedWorkspace = {
+        ...data,
+        name: data.title || data.name || "Unnamed Workspace",
+        title: data.title || data.name || "Unnamed Workspace",
+      }
+
+      // Save to localStorage for future use
+      const savedWorkspaces = localStorage.getItem("workspaces")
+      let workspaces = []
+
+      if (savedWorkspaces) {
+        try {
+          workspaces = JSON.parse(savedWorkspaces)
+          // Check if workspace already exists
+          const existingIndex = workspaces.findIndex((w: any) => w.id === processedWorkspace.id)
+          if (existingIndex >= 0) {
+            workspaces[existingIndex] = processedWorkspace
+          } else {
+            workspaces.push(processedWorkspace)
+          }
+        } catch (error) {
+          console.error("Error parsing workspaces from localStorage:", error)
+          workspaces = [processedWorkspace]
+        }
+      } else {
+        workspaces = [processedWorkspace]
+      }
+
+      localStorage.setItem("workspaces", JSON.stringify(workspaces))
+      return processedWorkspace
+    } catch (error) {
+      console.error("Error fetching workspace from API:", error)
+      return null
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    const workspaceId = Number.parseInt(params.id, 10)
+
+    if (isNaN(workspaceId)) {
+      console.error("Invalid workspace ID:", params.id)
+      setStatusMessage({ type: "error", message: "Invalid workspace ID" })
+      return
     }
 
-    loadTasks()
-  }, [params.id, router])
+    const loadWorkspace = async () => {
+      setIsLoading(true)
+
+      // First try to get from localStorage
+      const savedWorkspaces = localStorage.getItem("workspaces")
+      let foundWorkspace = null
+
+      if (savedWorkspaces) {
+        try {
+          const parsedWorkspaces = JSON.parse(savedWorkspaces)
+          foundWorkspace = parsedWorkspaces.find((w: any) => w.id === workspaceId)
+
+          if (foundWorkspace) {
+            console.log("Found workspace in localStorage:", foundWorkspace)
+
+            // Ensure the workspace has name and title properties
+            foundWorkspace = {
+              ...foundWorkspace,
+              name: foundWorkspace.title || foundWorkspace.name || "Unnamed Workspace",
+              title: foundWorkspace.title || foundWorkspace.name || "Unnamed Workspace",
+            }
+
+            setWorkspace(foundWorkspace)
+            setIsInitialized(true)
+          }
+        } catch (error) {
+          console.error("Error parsing workspaces from localStorage:", error)
+        }
+      }
+
+      // If not found in localStorage or if we need to refresh data
+      if (!foundWorkspace) {
+        console.log("Workspace not found in localStorage, fetching from API")
+        const apiWorkspace = await fetchWorkspaceFromAPI(workspaceId)
+
+        if (apiWorkspace) {
+          setWorkspace(apiWorkspace)
+          setIsInitialized(true)
+        } else if (retryCount < 3) {
+          // Retry a few times with a delay
+          console.log(`Retry attempt ${retryCount + 1} for workspace ${workspaceId}`)
+          setRetryCount(retryCount + 1)
+          setTimeout(() => {
+            loadWorkspace()
+          }, 1000) // Wait 1 second before retrying
+        } else {
+          // After retries, if still not found, redirect
+          console.log("Workspace not found after retries, redirecting to dashboard")
+          setStatusMessage({
+            type: "error",
+            message: "Workspace not found. Redirecting to dashboard...",
+          })
+
+          setTimeout(() => {
+            router.push("/dashboard")
+          }, 2000)
+        }
+      }
+
+      loadTasks()
+      setIsLoading(false)
+    }
+
+    loadWorkspace()
+  }, [params.id, router, retryCount])
 
   const loadTasks = () => {
     const savedTasks = localStorage.getItem(`tasks_${params.id}`)
@@ -271,8 +398,13 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
     localStorage.setItem(`tasks_${params.id}`, JSON.stringify(updatedTasks))
   }
 
-  if (!workspace) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>
+  // Don't render until we've initialized the component
+  if (!isInitialized && isLoading) {
+    return <div className="flex justify-center items-center h-screen">Loading workspace...</div>
+  }
+
+  if (!workspace && !isLoading) {
+    return <div className="flex justify-center items-center h-screen">Workspace not found</div>
   }
 
   return (
@@ -283,8 +415,8 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
           <div className="bg-white rounded-xl p-6 mb-6 shadow-sm cursor-pointer" onClick={toggleHeader}>
             <div className="flex justify-between items-start">
               <div>
-                <h2 className="text-2xl font-bold text-purple-700">{workspace.name}</h2>
-                <p className="text-gray-600">Description</p>
+                <h2 className="text-2xl font-bold text-purple-700">{workspace?.name || "Loading..."}</h2>
+                <p className="text-gray-600">{workspace?.description || "Description"}</p>
               </div>
 
               <div className="flex gap-3">
@@ -314,7 +446,7 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
                       openNotification()
                     }}
                   />
-                </div>  
+                </div>
               </div>
             </div>
 
@@ -480,6 +612,17 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
         onUpdate={() => {}}
       />
       <NotificationModal isOpen={isNotificationOpen} onClose={closeNotification} />
+
+      {/* Status message display */}
+      {statusMessage && (
+        <div
+          className={`fixed bottom-4 right-4 p-4 rounded-md shadow-lg ${
+            statusMessage.type === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+          }`}
+        >
+          {statusMessage.message}
+        </div>
+      )}
     </div>
   )
 }

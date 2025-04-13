@@ -24,6 +24,7 @@ const DashboardPage = () => {
   const [currentWorkspaceId, setCurrentWorkspaceId] = useState<number | undefined>(undefined)
   const [isDeleting, setIsDeleting] = useState(false)
   const [statusMessage, setStatusMessage] = useState<{ type: "success" | "error"; message: string } | null>(null)
+  const [isInitialized, setIsInitialized] = useState(false)
 
   // Set the current workspace ID from the URL parameter when the component mounts
   useEffect(() => {
@@ -32,8 +33,41 @@ const DashboardPage = () => {
       if (!isNaN(numericId)) {
         setCurrentWorkspaceId(numericId)
         console.log("Set current workspace ID from URL:", numericId)
+
+        // Check if this workspace exists in localStorage
+        const savedWorkspaces = localStorage.getItem("workspaces")
+        if (savedWorkspaces) {
+          try {
+            const parsedWorkspaces = JSON.parse(savedWorkspaces)
+            const foundWorkspace = parsedWorkspaces.find((w: any) => w.id === numericId)
+
+            if (!foundWorkspace) {
+              console.log("Workspace not found in localStorage, checking if it's a new workspace")
+              // This might be a newly created workspace that hasn't been saved to localStorage yet
+              // We'll check the sessionStorage for temporary data
+              const tempWorkspace = sessionStorage.getItem(`temp_workspace_${numericId}`)
+              if (tempWorkspace) {
+                console.log("Found temporary workspace data in sessionStorage")
+                try {
+                  const parsedTempWorkspace = JSON.parse(tempWorkspace)
+                  // Add it to localStorage
+                  parsedWorkspaces.push(parsedTempWorkspace)
+                  localStorage.setItem("workspaces", JSON.stringify(parsedWorkspaces))
+                  console.log("Added temporary workspace to localStorage")
+                  // Clear the temporary data
+                  sessionStorage.removeItem(`temp_workspace_${numericId}`)
+                } catch (error) {
+                  console.error("Error parsing temporary workspace data:", error)
+                }
+              }
+            }
+          } catch (error) {
+            console.error("Error parsing workspaces from localStorage:", error)
+          }
+        }
       }
     }
+    setIsInitialized(true)
   }, [currentPageId])
 
   // Check authentication on component mount
@@ -177,6 +211,11 @@ const DashboardPage = () => {
     } finally {
       setIsDeleting(false)
     }
+  }
+
+  // Don't render until we've initialized the component
+  if (!isInitialized) {
+    return <div className="flex justify-center items-center h-screen">Loading...</div>
   }
 
   let contentToRender

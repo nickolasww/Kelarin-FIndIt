@@ -46,16 +46,19 @@ export default function DashboardPage() {
   const handleWorkspaceCreated = (newWorkspace: Workspace) => {
     console.log("New workspace created:", newWorkspace)
 
-    // Process the new workspace to ensure it has all required fields
+    // Make sure both title and name are properly set from the input
+    // This is the key fix to ensure the workspace name displays correctly
     const processedWorkspace = {
       ...newWorkspace,
       id: newWorkspace.id || Math.floor(Math.random() * 100000),
+      // Ensure we're using the actual title/name from the created workspace
       name: newWorkspace.title || newWorkspace.name || "Unnamed Workspace",
       title: newWorkspace.title || newWorkspace.name || "Unnamed Workspace",
     }
 
     console.log("Processed new workspace:", processedWorkspace)
 
+    // Update the workspaces state with the new workspace
     setWorkspaces((prevWorkspaces) => {
       // Ensure prevWorkspaces is an array
       const workspaceArray = Array.isArray(prevWorkspaces) ? prevWorkspaces : []
