@@ -15,35 +15,26 @@ export default function WorkspaceCard({ workspace, onDelete }: WorkspaceCardProp
   const [isDeleting, setIsDeleting] = useState(false)
   const contextMenuRef = useRef<HTMLDivElement>(null)
 
-  // Ensure we're using the title from the workspace object
   const workspaceName = workspace.title || workspace.name || "Unnamed Workspace"
 
-  // Log the workspace data to help with debugging
   useEffect(() => {
     console.log("WorkspaceCard rendering with data:", workspace)
   }, [workspace])
 
-  // Get the first character for the avatar, or use "U" as fallback
   const firstChar = workspaceName.charAt(0) || "U"
 
-  // Handle regular click to navigate to workspace
   const handleClick = () => {
     if (!isDeleting) {
-      // Save the workspace data to localStorage before navigation
-      // This ensures the workspace detail page can find it even if API calls fail
       const savedWorkspaces = localStorage.getItem("workspaces")
       let workspaces = []
 
       if (savedWorkspaces) {
         try {
           workspaces = JSON.parse(savedWorkspaces)
-          // Check if workspace already exists in localStorage
           const existingIndex = workspaces.findIndex((w: any) => w.id === workspace.id)
           if (existingIndex >= 0) {
-            // Update existing workspace
             workspaces[existingIndex] = workspace
           } else {
-            // Add new workspace
             workspaces.push(workspace)
           }
         } catch (error) {
@@ -53,12 +44,9 @@ export default function WorkspaceCard({ workspace, onDelete }: WorkspaceCardProp
       } else {
         workspaces = [workspace]
       }
-
-      // Save updated workspaces to localStorage
       localStorage.setItem("workspaces", JSON.stringify(workspaces))
       console.log("Saved workspace to localStorage before navigation:", workspace)
 
-      // Navigate to the workspace detail page
       router.push(`/dashboard/${workspace.id}`)
     }
   }

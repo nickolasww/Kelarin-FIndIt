@@ -123,7 +123,6 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
 
   const handleCreate = (formData: AddTableData) => {
     console.log("Data Workspace yang Dibuat:", formData)
-    // logic backend
     setIsTableModalOpen(false)
   }
   const handleSaveTask = (taskData: {
@@ -142,7 +141,6 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
     }
   }
 
-  // Function to fetch workspace from API
   const fetchWorkspaceFromAPI = async (workspaceId: number) => {
     try {
       console.log("Fetching workspace from API:", workspaceId)
@@ -174,21 +172,17 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
       const data = await response.json()
       console.log("Workspace data from API:", data)
 
-      // Ensure the workspace has name and title properties
       const processedWorkspace = {
         ...data,
         name: data.title || data.name || "Unnamed Workspace",
         title: data.title || data.name || "Unnamed Workspace",
       }
-
-      // Save to localStorage for future use
       const savedWorkspaces = localStorage.getItem("workspaces")
       let workspaces = []
 
       if (savedWorkspaces) {
         try {
           workspaces = JSON.parse(savedWorkspaces)
-          // Check if workspace already exists
           const existingIndex = workspaces.findIndex((w: any) => w.id === processedWorkspace.id)
           if (existingIndex >= 0) {
             workspaces[existingIndex] = processedWorkspace
@@ -225,7 +219,6 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
     const loadWorkspace = async () => {
       setIsLoading(true)
 
-      // First try to get from localStorage
       const savedWorkspaces = localStorage.getItem("workspaces")
       let foundWorkspace = null
 
@@ -237,7 +230,6 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
           if (foundWorkspace) {
             console.log("Found workspace in localStorage:", foundWorkspace)
 
-            // Ensure the workspace has name and title properties
             foundWorkspace = {
               ...foundWorkspace,
               name: foundWorkspace.title || foundWorkspace.name || "Unnamed Workspace",
@@ -252,7 +244,6 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
         }
       }
 
-      // If not found in localStorage or if we need to refresh data
       if (!foundWorkspace) {
         console.log("Workspace not found in localStorage, fetching from API")
         const apiWorkspace = await fetchWorkspaceFromAPI(workspaceId)
@@ -261,14 +252,12 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
           setWorkspace(apiWorkspace)
           setIsInitialized(true)
         } else if (retryCount < 3) {
-          // Retry a few times with a delay
           console.log(`Retry attempt ${retryCount + 1} for workspace ${workspaceId}`)
           setRetryCount(retryCount + 1)
           setTimeout(() => {
             loadWorkspace()
-          }, 1000) // Wait 1 second before retrying
+          }, 1000) 
         } else {
-          // After retries, if still not found, redirect
           console.log("Workspace not found after retries, redirecting to dashboard")
           setStatusMessage({
             type: "error",
@@ -390,7 +379,6 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
     localStorage.setItem(`tasks_${params.id}`, JSON.stringify(defaultTasks))
   }
 
-  // Handle adding a new task
   const handleAddTask = (newTask: Task) => {
     const updatedTasks = { ...tasks }
     updatedTasks[newTask.status] = [...tasks[newTask.status], newTask]
@@ -398,7 +386,6 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
     localStorage.setItem(`tasks_${params.id}`, JSON.stringify(updatedTasks))
   }
 
-  // Don't render until we've initialized the component
   if (!isInitialized && isLoading) {
     return <div className="flex justify-center items-center h-screen">Loading workspace...</div>
   }
@@ -547,7 +534,7 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
             </div>
           </div>
 
-          {/* Kanban Board */}
+
           <div className="flex space-x-4 overflow-x-auto pb-6">
             <TaskColumn
               title="To Do"
@@ -613,7 +600,6 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
       />
       <NotificationModal isOpen={isNotificationOpen} onClose={closeNotification} />
 
-      {/* Status message display */}
       {statusMessage && (
         <div
           className={`fixed bottom-4 right-4 p-4 rounded-md shadow-lg ${
