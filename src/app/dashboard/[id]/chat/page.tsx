@@ -11,9 +11,6 @@ import EditIcon from '@/assets/icon/EditIcon.png'
 const ChatContent = () => {
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
 
-  const OpenInviteModal = () => {
-    setIsInviteModalOpen(true);
-  };
   const CloseInviteModal = () => {
     setIsInviteModalOpen(false);
   };

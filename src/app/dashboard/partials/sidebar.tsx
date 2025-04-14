@@ -1,55 +1,52 @@
-"use client"
+import type React from "react";
 
-import type React from "react"
-import { useState, useEffect } from "react"
-import CreateWorkspaceModal from "@/components/modal/createworkspace"
-import UpgradeModal from "@/components/modal/upgrademodal"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import type { Workspace } from "@/services/workspace"
+import { useState, useEffect } from "react";
+import CreateWorkspaceModal from "@/components/modal/createworkspace";
+import UpgradeModal from "@/components/modal/upgrademodal";
+import Link from "next/link";
+import type { Workspace } from "@/services/workspace";
 
 interface SidebarProps {
-  workspaces: Workspace[]
-  onWorkspaceCreated: (workspace: Workspace) => void
+  workspaces: Workspace[];
+  onWorkspaceCreated: (workspace: Workspace) => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ workspaces = [], onWorkspaceCreated }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false)
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const [userName, setUserName] = useState("User")
-  const router = useRouter()
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [userName, setUserName] = useState("User");
 
   useEffect(() => {
-    const storedName = localStorage.getItem("userName")
+    const storedName = localStorage.getItem("userName");
     if (storedName) {
-      setUserName(storedName)
+      setUserName(storedName);
     }
-  }, [])
+  }, []);
 
   const openModal = () => {
-    setIsModalOpen(true)
-  }
+    setIsModalOpen(true);
+  };
 
   const closeModal = () => {
-    setIsModalOpen(false)
-  }
+    setIsModalOpen(false);
+  };
 
   const openUpgradeModal = () => {
-    setIsUpgradeModalOpen(true)
-  }
+    setIsUpgradeModalOpen(true);
+  };
 
   const closeUpgradeModal = () => {
-    setIsUpgradeModalOpen(false)
-  }
+    setIsUpgradeModalOpen(false);
+  };
 
   const handleCreateWorkspace = (workspaceData: Workspace) => {
-    onWorkspaceCreated(workspaceData)
-  }
+    onWorkspaceCreated(workspaceData);
+  };
 
   const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen)
-  }
+    setIsSidebarOpen(!isSidebarOpen);
+  };
 
   return (
     <>
@@ -124,7 +121,7 @@ const Sidebar: React.FC<SidebarProps> = ({ workspaces = [], onWorkspaceCreated }
       <CreateWorkspaceModal isOpen={isModalOpen} onClose={closeModal} onCreate={handleCreateWorkspace} />
       <UpgradeModal isOpen={isUpgradeModalOpen} onClose={closeUpgradeModal} />
     </>
-  )
-}
+  );
+};
 
-export default Sidebar
+export default Sidebar;

@@ -141,7 +141,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
         tagColor: "purple",
         commentCount: data.comment ? 1 : 0,
         attachmentCount: data.attachments.length,
-        status: statusKey, 
+        status: statusKey,
         deskripsi: data.deskripsi,
         attachments: data.attachments,
         comment: data.comment,
