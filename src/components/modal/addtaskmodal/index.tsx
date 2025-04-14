@@ -1,24 +1,23 @@
-"use client"
-import type React from "react"
-import { useState, useRef } from "react"
-import { useEffect } from "react"
+"use client";
+import type React from "react";
+import { useState, useRef, useEffect } from "react";
 
 interface TaskModalProps {
-  onClose: () => void
-  onUpdate: (comment: string, attachments: string[]) => void
-  onRemove: (taskId: string) => void
-  initialTitle?: string
-  initialDescription?: string
-  initialAttachments?: string[]
-  initialComment?: string
-  isOpen: boolean
+  onClose: () => void;
+  onUpdate: (comment: string, attachments: string[]) => void;
+  onRemove: (taskId: string) => void;
+  initialTitle?: string;
+  initialDescription?: string;
+  initialAttachments?: string[];
+  initialComment?: string;
+  isOpen: boolean;
   onSave: (data: {
-    deskripsi: string
-    attachments: string[]
-    comment: string
-  }) => void
-  onTitleChange?: (title: string) => void
-  taskId?: string
+    deskripsi: string;
+    attachments: string[];
+    comment: string;
+  }) => void;
+  onTitleChange?: (title: string) => void;
+  taskId?: string;
 }
 
 const AddTaskModal: React.FC<TaskModalProps> = ({
@@ -34,108 +33,108 @@ const AddTaskModal: React.FC<TaskModalProps> = ({
   onTitleChange,
   taskId,
 }) => {
-  const [title, setTitle] = useState(initialTitle)
-  const [deskripsi, setDeskripsi] = useState(initialDescription || "")
-  const [attachmentInput, setAttachmentInput] = useState("")
-  const [attachments, setAttachments] = useState<string[]>(initialAttachments || [])
-  const [comment, setComment] = useState(initialComment || "")
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [isError, setIsError] = useState<string | null>(null)
+  const [title, setTitle] = useState(initialTitle);
+  const [deskripsi, setDeskripsi] = useState(initialDescription || "");
+  const [attachmentInput, setAttachmentInput] = useState("");
+  const [attachments, setAttachments] = useState<string[]>(initialAttachments || []);
+  const [comment, setComment] = useState(initialComment || "");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState<string | null>(null);
 
-  const initialRender = useRef(true)
-  const userChangedTitle = useRef(false)
+  const initialRender = useRef(true);
+  const userChangedTitle = useRef(false);
 
   useEffect(() => {
-    setIsModalOpen(isOpen)
+    setIsModalOpen(isOpen);
     if (isOpen) {
-      setTitle(initialTitle || "")
-      setDeskripsi(initialDescription || "")
-      setAttachments(initialAttachments || [])
-      setComment(initialComment || "")
-      setIsError(null)
-      userChangedTitle.current = false
+      setTitle(initialTitle || "");
+      setDeskripsi(initialDescription || "");
+      setAttachments(initialAttachments || []);
+      setComment(initialComment || "");
+      setIsError(null);
+      userChangedTitle.current = false;
     }
-  }, [isOpen, initialTitle, initialDescription, initialAttachments, initialComment])
+  }, [isOpen, initialTitle, initialDescription, initialAttachments, initialComment]);
 
   useEffect(() => {
     if (initialRender.current) {
-      initialRender.current = false
-      return
+      initialRender.current = false;
+      return;
     }
 
     if (userChangedTitle.current && onTitleChange) {
-      onTitleChange(title)
+      onTitleChange(title);
     }
-  }, [title, onTitleChange])
+  }, [title, onTitleChange]);
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newTitle = e.target.value
-    userChangedTitle.current = true
-    setTitle(newTitle)
-  }
+    const newTitle = e.target.value;
+    userChangedTitle.current = true;
+    setTitle(newTitle);
+  };
 
   const handleAddAttachment = () => {
-    if (!attachmentInput.trim()) return
+    if (!attachmentInput.trim()) return;
 
-    setIsLoading(true)
-    setIsError(null)
+    setIsLoading(true);
+    setIsError(null);
 
     try {
-      setAttachments((prevAttachments) => [...prevAttachments, attachmentInput.trim()])
-      setAttachmentInput("")
-      console.log("Attachment added successfully:", attachmentInput.trim())
-    } catch (error: any) {
-      setIsError(error.message || "Failed to add attachment")
-      console.error("Error adding attachment:", error)
+      setAttachments((prevAttachments) => [...prevAttachments, attachmentInput.trim()]);
+      setAttachmentInput("");
+      console.log("Attachment added successfully:", attachmentInput.trim());
+    } catch (error) {
+      setIsError((error as Error).message || "Failed to add attachment");
+      console.error("Error adding attachment:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleSave = () => {
     try {
-      setIsLoading(true)
+      setIsLoading(true);
       onSave({
         deskripsi,
         attachments,
         comment,
-      })
-      onClose()
-    } catch (error: any) {
-      setIsError(error instanceof Error ? error.message : "Failed to save changes")
-      console.error("Error saving changes:", error)
+      });
+      onClose();
+    } catch (error) {
+      setIsError((error as Error).message || "Failed to save changes");
+      console.error("Error saving changes:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleRemoveTask = () => {
     if (taskId) {
-      console.log("Removing task with ID:", taskId)
-      onRemove(taskId)
-      onClose()
+      console.log("Removing task with ID:", taskId);
+      onRemove(taskId);
+      onClose();
     } else {
-      console.error("Cannot remove task: No taskId provided")
-      setIsError("Cannot remove task: No task ID provided")
+      console.error("Cannot remove task: No taskId provided");
+      setIsError("Cannot remove task: No task ID provided");
     }
-  }
+  };
 
   const handleRemoveAttachment = (index: number) => {
-    setAttachments((prevAttachments) => prevAttachments.filter((_, i) => i !== index))
-  }
+    setAttachments((prevAttachments) => prevAttachments.filter((_, i) => i !== index));
+  };
 
   const handlePostComment = async () => {
-    if (!comment.trim()) return
+    if (!comment.trim()) return;
 
     try {
-      onUpdate(comment, attachments)
-      setComment("")
-    } catch (error: any) {
-      setIsError(error instanceof Error ? error.message : "Failed to post comment")
-      console.error("Error posting comment:", error)
+      onUpdate(comment, attachments);
+      setComment("");
+    } catch (error) {
+      setIsError((error as Error).message || "Failed to post comment");
+      console.error("Error posting comment:", error);
     }
-  }
+  };
 
   return isModalOpen ? (
     <div className="fixed z-50 inset-0 bg-black/50 flex justify-center items-center">
@@ -184,7 +183,9 @@ const AddTaskModal: React.FC<TaskModalProps> = ({
             <button
               type="button"
               onClick={handleAddAttachment}
-              className={`ml-7 bg-purple-700 text-white font-semibold py-2 px-4 rounded focus:outline-none w-30 ${isLoading ? "opacity-70 cursor-not-allowed" : ""}`}
+              className={`ml-7 bg-purple-700 text-white font-semibold py-2 px-4 rounded focus:outline-none w-30 ${
+                isLoading ? "opacity-70 cursor-not-allowed" : ""
+              }`}
               disabled={isLoading || !attachmentInput.trim()}
             >
               {isLoading ? "Adding..." : "+ Add"}
@@ -239,7 +240,9 @@ const AddTaskModal: React.FC<TaskModalProps> = ({
             <button
               type="button"
               onClick={handlePostComment}
-              className={`ml-7 bg-purple-700 text-white font-semibold py-2 px-4 rounded focus:outline-none w-30 ${isLoading ? "opacity-70 cursor-not-allowed" : ""}`}
+              className={`ml-7 bg-purple-700 text-white font-semibold py-2 px-4 rounded focus:outline-none w-30 ${
+                isLoading ? "opacity-70 cursor-not-allowed" : ""
+              }`}
               disabled={isLoading || !comment.trim()}
             >
               + Post
@@ -260,7 +263,9 @@ const AddTaskModal: React.FC<TaskModalProps> = ({
           )}
           <button
             onClick={handleSave}
-            className={`bg-purple-700 text-white font-semibold py-2 px-20 rounded focus:outline-none ${isLoading ? "opacity-70 cursor-not-allowed" : ""}`}
+            className={`bg-purple-700 text-white font-semibold py-2 px-20 rounded focus:outline-none ${
+              isLoading ? "opacity-70 cursor-not-allowed" : ""
+            }`}
             disabled={isLoading}
           >
             {isLoading ? "Saving..." : "Save Change"}
@@ -268,7 +273,7 @@ const AddTaskModal: React.FC<TaskModalProps> = ({
         </div>
       </div>
     </div>
-  ) : null
-}
+  ) : null;
+};
 
-export default AddTaskModal
+export default AddTaskModal;

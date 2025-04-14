@@ -1,25 +1,25 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useEffect } from "react"
-import { getAuthToken } from "@/services/validation"
+import type React from "react";
+import { useState, useEffect } from "react";
+import { getAuthToken } from "@/services/validation";
 
 interface TaskModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onUpdate: (comment: string, attachments: string[]) => void
-  onRemove: (cardId: string) => void
-  initialTitle?: string
-  initialDescription?: string
-  initialAttachments?: string[]
-  initialComment?: string
-  cardId: number
+  isOpen: boolean;
+  onClose: () => void;
+  onUpdate: (comment: string, attachments: string[]) => void;
+  onRemove: (cardId: string) => void;
+  initialTitle?: string;
+  initialDescription?: string;
+  initialAttachments?: string[];
+  initialComment?: string;
+  cardId: number;
   onSave: (data: {
-    title: string
-    description: string
-    attachments: string[]
-    comment: string
-  }) => void
+    title: string;
+    description: string;
+    attachments: string[];
+    comment: string;
+  }) => void;
 }
 
 const EditTaskModal: React.FC<TaskModalProps> = ({
@@ -34,66 +34,66 @@ const EditTaskModal: React.FC<TaskModalProps> = ({
   initialAttachments = [],
   initialComment = "",
 }) => {
-  const [title, setTitle] = useState(initialTitle)
-  const [description, setDescription] = useState(initialDescription)
-  const [comment, setComment] = useState(initialComment)
-  const [attachmentLink, setAttachmentLink] = useState("")
-  const [attachments, setAttachments] = useState<string[]>(initialAttachments)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [title, setTitle] = useState(initialTitle);
+  const [description, setDescription] = useState(initialDescription);
+  const [comment, setComment] = useState(initialComment);
+  const [attachmentLink, setAttachmentLink] = useState("");
+  const [attachments, setAttachments] = useState<string[]>(initialAttachments);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
-      setTitle(initialTitle)
-      setDescription(initialDescription)
-      setComment(initialComment)
-      setAttachments(initialAttachments)
-      setError(null)
+      setTitle(initialTitle);
+      setDescription(initialDescription);
+      setComment(initialComment);
+      setAttachments(initialAttachments);
+      setError(null);
     }
-  }, [isOpen, initialTitle, initialDescription, initialComment, initialAttachments])
+  }, [isOpen, initialTitle, initialDescription, initialComment, initialAttachments]);
 
   const handleAddAttachment = async () => {
-    if (!attachmentLink.trim()) return
+    if (!attachmentLink.trim()) return;
 
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
 
     try {
-      const formData = new FormData()
-      formData.append("url", attachmentLink.trim())
-      formData.append("file_name", `Attachment ${attachments.length + 1}`)
+      const formData = new FormData();
+      formData.append("url", attachmentLink.trim());
+      formData.append("file_name", `Attachment ${attachments.length + 1}`);
 
-      const token = await getAuthToken()
+      const token = await getAuthToken();
 
-      const response = await fetch("https://kelarin.bccdev.id/api/kanban/cards/1/attachment", {
+      const response = await fetch(`https://kelarin.bccdev.id/api/kanban/cards/${cardId}/attachment`, {
         method: "POST",
         headers: {
           Authorization: token ? `Bearer ${token}` : "",
         },
         body: formData,
-      })
+      });
 
       if (!response.ok) {
-        throw new Error(`Error: ${response.status}`)
+        throw new Error(`Error: ${response.status}`);
       }
 
-      const data = await response.json()
-      console.log("Attachment added successfully:", data)
+      const data = await response.json();
+      console.log("Attachment added successfully:", data);
 
-      setAttachments([...attachments, attachmentLink.trim()])
-      setAttachmentLink("")
-    } catch (err: any) {
-      setError(err.message)
-      console.error("Error adding attachment:", err)
+      setAttachments([...attachments, attachmentLink.trim()]);
+      setAttachmentLink("");
+    } catch (err) {
+      setError((err as Error).message);
+      console.error("Error adding attachment:", err);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleRemoveAttachment = (index: number) => {
-    const newAttachments = attachments.filter((_, i) => i !== index)
-    setAttachments(newAttachments)
-  }
+    const newAttachments = attachments.filter((_, i) => i !== index);
+    setAttachments(newAttachments);
+  };
 
   const handleUpdateTask = () => {
     onSave({
@@ -101,19 +101,19 @@ const EditTaskModal: React.FC<TaskModalProps> = ({
       description,
       attachments,
       comment,
-    })
-    onClose()
-  }
+    });
+    onClose();
+  };
 
   const handleRemoveTask = async () => {
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
 
     try {
-      const token = await getAuthToken()
+      const token = await getAuthToken();
 
-      console.log(`Attempting to delete card with ID: ${cardId}`)
-      console.log(`Using endpoint: https://kelarin.bccdev.id/api/kanban/cards/${cardId}`)
+      console.log(`Attempting to delete card with ID: ${cardId}`);
+      console.log(`Using endpoint: https://kelarin.bccdev.id/api/kanban/cards/${cardId}`);
 
       const response = await fetch(`https://kelarin.bccdev.id/api/kanban/cards/${cardId}`, {
         method: "DELETE",
@@ -121,30 +121,30 @@ const EditTaskModal: React.FC<TaskModalProps> = ({
           Authorization: token ? `Bearer ${token}` : "",
           "Content-Type": "application/json",
         },
-      })
+      });
 
       if (!response.ok) {
-        const errorText = await response.text()
-        throw new Error(`Error ${response.status}: ${errorText}`)
+        const errorText = await response.text();
+        throw new Error(`Error ${response.status}: ${errorText}`);
       }
 
-      console.log("Task removed successfully")
-      
-      onRemove(cardId.toString())
-      onClose()
-    } catch (err: any) {
-      console.error("Error removing task:", err)
-      setError(err.message || "Failed to remove task. Network error or server unavailable.")
-      
-      console.log("API call failed, but still removing card from UI")
-      onRemove(cardId.toString())
-      onClose()
-    } finally {
-      setIsLoading(false)
-    }
-  }
+      console.log("Task removed successfully");
 
-  if (!isOpen) return null
+      onRemove(cardId.toString());
+      onClose();
+    } catch (err) {
+      console.error("Error removing task:", err);
+      setError((err as Error).message || "Failed to remove task. Network error or server unavailable.");
+
+      console.log("API call failed, but still removing card from UI");
+      onRemove(cardId.toString());
+      onClose();
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed z-50 inset-0 bg-black/50 flex justify-center items-center">
@@ -243,8 +243,8 @@ const EditTaskModal: React.FC<TaskModalProps> = ({
             <button
               type="button"
               onClick={() => {
-                onUpdate(comment, attachments)
-                setComment("") // Clear comment after posting
+                onUpdate(comment, attachments);
+                setComment(""); // Clear comment after posting
               }}
               className={`ml-7 bg-purple-700 text-white font-semibold py-2 px-4 rounded focus:outline-none w-30 ${
                 isLoading ? "opacity-70 cursor-not-allowed" : ""
@@ -280,7 +280,7 @@ const EditTaskModal: React.FC<TaskModalProps> = ({
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default EditTaskModal
+export default EditTaskModal;

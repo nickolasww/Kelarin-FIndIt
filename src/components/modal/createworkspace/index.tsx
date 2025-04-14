@@ -1,75 +1,75 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useEffect } from "react"
-import Input from "@/components/input/index"
-import { createWorkspace, inviteToWorkspace } from "@/services/workspace"
-import { X } from "lucide-react"
+import type React from "react";
+import { useState, useEffect } from "react";
+import Input from "@/components/input/index";
+import { createWorkspace, inviteToWorkspace } from "@/services/workspace";
+import { X } from "lucide-react";
 
 interface CreateWorkspaceModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onCreate: (workspaceData: any) => void
+  isOpen: boolean;
+  onClose: () => void;
+  onCreate: (workspaceData: any) => void; // Consider typing workspaceData more specifically
 }
 
 const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({ isOpen, onClose, onCreate }) => {
-  const [workspaceType, setWorkspaceType] = useState<string | null>(null)
-  const [email, setEmail] = useState("")
-  const [workspaceName, setWorkspaceName] = useState("")
-  const [description, setDescription] = useState("")
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [isInviting, setIsInviting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [inviteMessage, setInviteMessage] = useState<string | null>(null)
+  const [workspaceType, setWorkspaceType] = useState<string | null>(null);
+  const [email, setEmail] = useState("");
+  const [workspaceName, setWorkspaceName] = useState("");
+  const [description, setDescription] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isInviting, setIsInviting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [inviteMessage, setInviteMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    setIsModalOpen(isOpen)
-  }, [isOpen])
+    setIsModalOpen(isOpen);
+  }, [isOpen]);
 
   const validateEmail = (email: string): boolean => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return regex.test(email)
-  }
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  };
 
   const handleInvite = async () => {
     if (!email.trim()) {
-      setError("Email is required to invite")
-      return
+      setError("Email is required to invite");
+      return;
     }
 
     if (!validateEmail(email.trim())) {
-      setError("Invalid email format")
-      return
+      setError("Invalid email format");
+      return;
     }
 
-    setError(null)
-    setInviteMessage(null)
-    setIsInviting(true)
+    setError(null);
+    setInviteMessage(null);
+    setIsInviting(true);
 
     try {
-      setInviteMessage("Email added. Invitation will be sent when workspace is created.")
+      setInviteMessage("Email added. Invitation will be sent when workspace is created.");
     } catch (err) {
-      console.error("Error adding email for invitation:", err)
-      setError("Failed to add email. Please try again.")
+      console.error("Error adding email for invitation:", err);
+      setError("Failed to add email. Please try again.");
     } finally {
-      setIsInviting(false)
+      setIsInviting(false);
     }
-  }
+  };
 
   const handleCreate = async () => {
     if (!workspaceName.trim()) {
-      setError("Workspace name is required")
-      return
+      setError("Workspace name is required");
+      return;
     }
 
     if (!workspaceType) {
-      setError("Please select a workspace type")
-      return
+      setError("Please select a workspace type");
+      return;
     }
 
-    setError(null)
-    setIsLoading(true)
+    setError(null);
+    setIsLoading(true);
 
     try {
       const workspaceData = {
@@ -77,41 +77,41 @@ const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({ isOpen, onC
         purpose: workspaceType,
         description: description.trim(),
         collaborator: email.trim() || undefined,
-      }
+      };
 
-      const response = await createWorkspace(workspaceData)
-      console.log("Workspace created successfully:", response)
+      const response = await createWorkspace(workspaceData);
+      console.log("Workspace created successfully:", response);
 
       const completeWorkspace = {
         ...response,
         name: response.title || workspaceName.trim(),
         title: response.title || workspaceName.trim(),
-      }
+      };
 
       if (email.trim() && validateEmail(email.trim())) {
         try {
-          await inviteToWorkspace(response.id, email.trim())
-          console.log(`Invitation sent to ${email.trim()}`)
+          await inviteToWorkspace(response.id, email.trim());
+          console.log(`Invitation sent to ${email.trim()}`);
         } catch (inviteErr) {
-          console.error("Error sending invitation:", inviteErr)
+          console.error("Error sending invitation:", inviteErr);
         }
       }
 
-      setWorkspaceName("")
-      setDescription("")
-      setEmail("")
-      setWorkspaceType(null)
-      setInviteMessage(null)
+      setWorkspaceName("");
+      setDescription("");
+      setEmail("");
+      setWorkspaceType(null);
+      setInviteMessage(null);
 
-      onCreate(completeWorkspace)
-      onClose()
+      onCreate(completeWorkspace);
+      onClose();
     } catch (err) {
-      console.error("Error creating workspace:", err)
-      setError("Failed to create workspace. Please try again.")
+      console.error("Error creating workspace:", err);
+      setError("Failed to create workspace. Please try again.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return isModalOpen ? (
     <div className="fixed z-50 inset-0 bg-black/50 flex items-center justify-center p-4">
@@ -148,7 +148,9 @@ const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({ isOpen, onC
               onChange={(e) => setEmail(e.target.value)}
             />
             <button
-              className={`bg-purple-500 hover:bg-purple-600 text-white rounded-lg px-4 py-2 sm:px-6 sm:py-3 flex items-center justify-center ${isInviting ? "opacity-70 cursor-not-allowed" : ""}`}
+              className={`bg-purple-500 hover:bg-purple-600 text-white rounded-lg px-4 py-2 sm:px-6 sm:py-3 flex items-center justify-center ${
+                isInviting ? "opacity-70 cursor-not-allowed" : ""
+              }`}
               onClick={handleInvite}
               disabled={isInviting}
             >
@@ -191,7 +193,7 @@ const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({ isOpen, onC
         </button>
       </div>
     </div>
-  ) : null
-}
+  ) : null;
+};
 
-export default CreateWorkspaceModal
+export default CreateWorkspaceModal;
