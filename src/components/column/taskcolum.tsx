@@ -63,7 +63,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
     setModalOpen(false)
   }
 
-// handle Open Edit Modal
+  // handle Open Edit Modal
   const handleOpenEditModal = (task: Task) => {
     setCurrentTaskId(task.id)
     setNewTaskData({
@@ -126,10 +126,20 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
     })
   }
 
-  const handleRemoveTask = () => {
-    if (currentTaskId && onRemoveTask) {
-      onRemoveTask(currentTaskId)
-      setModalOpen(false)
+  // Updated to handle task removal with taskId parameter
+  const handleRemoveTask = (taskId: string) => {
+    if (taskId && onRemoveTask) {
+      console.log("Removing task with ID:", taskId)
+
+      // Call onRemoveTask to update the parent component's state
+      onRemoveTask(taskId)
+
+      // Close the appropriate modal
+      if (editModalOpen) {
+        setEditModalOpen(false)
+      } else if (modalOpen) {
+        setModalOpen(false)
+      }
     }
   }
 
@@ -240,22 +250,21 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
         initialAttachments={newTaskData.attachments}
         initialComment={newTaskData.comment}
         onTitleChange={handleTitleChange}
+        taskId={currentTaskId || ""} // Pass the current task ID to the modal
       />
 
       <EditTaskModal
-       isOpen={editModalOpen}
-       onClose={handleCloseEditModal}
-       onSave={handleUpdateEditTask}
-       onRemove={handleRemoveTask}
-       onUpdate={handleUpdateComment}
-       initialTitle={newTaskData.title}
-       initialDescription={newTaskData.deskripsi}
-       initialAttachments={newTaskData.attachments}
-       initialComment={newTaskData.comment}
-      
-      
+        cardId={currentTaskId ? Number.parseInt(currentTaskId, 10) || 0 : 0}
+        isOpen={editModalOpen}
+        onClose={handleCloseEditModal}
+        onSave={handleUpdateEditTask}
+        onRemove={(cardId) => handleRemoveTask(cardId.toString())}
+        onUpdate={handleUpdateComment}
+        initialTitle={newTaskData.title}
+        initialDescription={newTaskData.deskripsi}
+        initialAttachments={newTaskData.attachments}
+        initialComment={newTaskData.comment}
       />
-
     </div>
   )
 }

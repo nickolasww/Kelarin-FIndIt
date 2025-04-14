@@ -8,11 +8,12 @@ interface TaskModalProps {
   isOpen: boolean
   onClose: () => void
   onUpdate: (comment: string, attachments: string[]) => void
-  onRemove: () => void
+  onRemove: (cardId: string) => void
   initialTitle?: string
   initialDescription?: string
   initialAttachments?: string[]
   initialComment?: string
+  cardId: number
   onSave: (data: {
     title: string
     description: string
@@ -27,6 +28,7 @@ const EditTaskModal: React.FC<TaskModalProps> = ({
   onUpdate,
   onRemove,
   onSave,
+  cardId,
   initialTitle = "Membuat PRD 1.0",
   initialDescription = "membuat prd untuk fitur yang akan dijadikan MVP",
   initialAttachments = [],
@@ -101,6 +103,49 @@ const EditTaskModal: React.FC<TaskModalProps> = ({
       comment,
     })
     onClose()
+  }
+
+  const handleRemoveTask = async () => {
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      const token = await getAuthToken()
+
+      // Log the request details for debugging
+      console.log(`Attempting to delete card with ID: ${cardId}`)
+      console.log(`Using endpoint: https://kelarin.bccdev.id/api/kanban/cards/${cardId}`)
+
+      const response = await fetch(`https://kelarin.bccdev.id/api/kanban/cards/${cardId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: token ? `Bearer ${token}` : "",
+          "Content-Type": "application/json",
+        },
+      })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(`Error ${response.status}: ${errorText}`)
+      }
+
+      console.log("Task removed successfully")
+      
+      // Convert cardId to string before calling onRemove
+      onRemove(cardId.toString())
+      onClose()
+    } catch (err: any) {
+      console.error("Error removing task:", err)
+      setError(err.message || "Failed to remove task. Network error or server unavailable.")
+      
+      // IMPORTANT: Even if the API call fails, still update the UI
+      // This ensures the card disappears from the UI even if the server fails to delete it
+      console.log("API call failed, but still removing card from UI")
+      onRemove(cardId.toString())
+      onClose()
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   if (!isOpen) return null
@@ -216,23 +261,26 @@ const EditTaskModal: React.FC<TaskModalProps> = ({
         </div>
 
         {/* Actions */}
-        <div className="flex justify-center gap-2 mt-9">
-          <button
-            onClick={onRemove}
-            className="border border-purple-500 text-purple-500 font-semibold py-2 px-20 rounded focus:outline-none"
-            disabled={isLoading}
-          >
-            Remove
-          </button>
-          <button
-            onClick={handleUpdateTask}
-            className={`bg-purple-700 text-white font-semibold py-2 px-20 rounded focus:outline-none ${
-              isLoading ? "opacity-70 cursor-not-allowed" : ""
-            }`}
-            disabled={isLoading}
-          >
-            Update Task
-          </button>
+        <div className="flex flex-col gap-2 mt-9">
+          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+          <div className="flex justify-center gap-2">
+            <button
+              onClick={handleRemoveTask}
+              className="border border-purple-500 text-purple-500 font-semibold py-2 px-20 rounded focus:outline-none"
+              disabled={isLoading}
+            >
+              {isLoading ? "Removing..." : "Remove"}
+            </button>
+            <button
+              onClick={handleUpdateTask}
+              className={`bg-purple-700 text-white font-semibold py-2 px-20 rounded focus:outline-none ${
+                isLoading ? "opacity-70 cursor-not-allowed" : ""
+              }`}
+              disabled={isLoading}
+            >
+              Update Task
+            </button>
+          </div>
         </div>
       </div>
     </div>

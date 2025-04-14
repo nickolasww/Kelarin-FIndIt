@@ -8,7 +8,7 @@ import { useEffect } from "react"
 interface TaskModalProps {
   onClose: () => void
   onUpdate: (comment: string, attachments: string[]) => void
-  onRemove: () => void
+  onRemove: (taskId: string) => void // Updated to accept taskId parameter
   initialTitle?: string
   initialDescription?: string
   initialAttachments?: string[]
@@ -20,6 +20,7 @@ interface TaskModalProps {
     comment: string
   }) => void
   onTitleChange?: (title: string) => void
+  taskId?: string // Added taskId prop
 }
 
 const AddTaskModal: React.FC<TaskModalProps> = ({
@@ -33,6 +34,7 @@ const AddTaskModal: React.FC<TaskModalProps> = ({
   initialAttachments = [],
   initialComment = "",
   onTitleChange,
+  taskId, // Added taskId parameter
 }) => {
   const [title, setTitle] = useState(initialTitle)
   const [deskripsi, setDeskripsi] = useState(initialDescription || "")
@@ -130,6 +132,18 @@ const AddTaskModal: React.FC<TaskModalProps> = ({
       console.error("Error saving changes:", error)
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  // Handle remove task
+  const handleRemoveTask = () => {
+    if (taskId) {
+      console.log("Removing task with ID:", taskId)
+      onRemove(taskId)
+      onClose()
+    } else {
+      console.error("Cannot remove task: No taskId provided")
+      setIsError("Cannot remove task: No task ID provided")
     }
   }
 
@@ -263,6 +277,16 @@ const AddTaskModal: React.FC<TaskModalProps> = ({
 
         {/* Actions */}
         <div className="flex justify-center gap-2 mt-9">
+          {/* Add Remove button if taskId is provided */}
+          {taskId && (
+            <button
+              onClick={handleRemoveTask}
+              className="border border-purple-500 text-purple-500 font-semibold py-2 px-20 rounded focus:outline-none"
+              disabled={isLoading}
+            >
+              {isLoading ? "Removing..." : "Remove"}
+            </button>
+          )}
           <button
             onClick={handleSave}
             className={`bg-purple-700 text-white font-semibold py-2 px-20 rounded focus:outline-none ${isLoading ? "opacity-70 cursor-not-allowed" : ""}`}

@@ -35,6 +35,9 @@ interface Task {
   commentCount: number
   attachmentCount: number
   status: "todo" | "done" | "progress" | "review"
+  deskripsi?: string
+  attachments?: string[]
+  comment?: string
 }
 
 interface AddTableData {
@@ -256,7 +259,7 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
           setRetryCount(retryCount + 1)
           setTimeout(() => {
             loadWorkspace()
-          }, 1000) 
+          }, 1000)
         } else {
           console.log("Workspace not found after retries, redirecting to dashboard")
           setStatusMessage({
@@ -284,106 +287,88 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
         setTasks(JSON.parse(savedTasks))
       } catch (error) {
         console.error("Error parsing tasks from localStorage:", error)
-        initializeDefaultTasks()
+        initializeEmptyTasks() // Changed to initialize empty tasks
       }
     } else {
-      initializeDefaultTasks()
+      initializeEmptyTasks() // Changed to initialize empty tasks
     }
   }
 
-  const initializeDefaultTasks = () => {
-    const defaultTasks = {
-      todo: [
-        {
-          id: "1",
-          title: "Slicing Website 2.0",
-          tag: "Front End",
-          tagColor: "yellow",
-          commentCount: 2,
-          attachmentCount: 5,
-          status: "todo" as const,
-        },
-        {
-          id: "2",
-          title: "Membuat Schema DB",
-          tag: "Back End",
-          tagColor: "green",
-          commentCount: 1,
-          attachmentCount: 9,
-          status: "todo" as const,
-        },
-      ],
-      done: [
-        {
-          id: "3",
-          title: "Membuat Hi-Fi",
-          tag: "Product Design",
-          tagColor: "purple",
-          commentCount: 5,
-          attachmentCount: 10,
-          status: "done" as const,
-        },
-      ],
-      progress: [
-        {
-          id: "4",
-          title: "Membuat PRD 2.0",
-          tag: "Product Manager",
-          tagColor: "blue",
-          commentCount: 1,
-          attachmentCount: 1,
-          status: "progress" as const,
-        },
-        {
-          id: "5",
-          title: "Membuat Prototype",
-          tag: "Product Design",
-          tagColor: "purple",
-          commentCount: 3,
-          attachmentCount: 5,
-          status: "progress" as const,
-        },
-        {
-          id: "6",
-          title: "Install Linux",
-          tag: "Back End",
-          tagColor: "green",
-          commentCount: 2,
-          attachmentCount: 9,
-          status: "progress" as const,
-        },
-      ],
-      review: [
-        {
-          id: "7",
-          title: "Membuat PRD 1.0",
-          tag: "Product Manager",
-          tagColor: "blue",
-          commentCount: 7,
-          attachmentCount: 18,
-          status: "review" as const,
-        },
-        {
-          id: "8",
-          title: "Slicing 1.0",
-          tag: "Front End",
-          tagColor: "yellow",
-          commentCount: 9,
-          attachmentCount: 12,
-          status: "review" as const,
-        },
-      ],
+  // Modified to initialize empty tasks
+  const initializeEmptyTasks = () => {
+    const emptyTasks = {
+      todo: [],
+      done: [],
+      progress: [],
+      review: [],
     }
 
-    setTasks(defaultTasks)
-    localStorage.setItem(`tasks_${params.id}`, JSON.stringify(defaultTasks))
+    setTasks(emptyTasks)
+    localStorage.setItem(`tasks_${params.id}`, JSON.stringify(emptyTasks))
   }
+  
 
   const handleAddTask = (newTask: Task) => {
     const updatedTasks = { ...tasks }
     updatedTasks[newTask.status] = [...tasks[newTask.status], newTask]
     setTasks(updatedTasks)
     localStorage.setItem(`tasks_${params.id}`, JSON.stringify(updatedTasks))
+  }
+
+  // Add this function to handle task updates
+  const handleUpdateTask = (taskId: string, updatedTask: Partial<Task>) => {
+    console.log("Updating task with ID:", taskId, "with data:", updatedTask)
+
+    const updatedTasks = { ...tasks }
+
+    let statusKey: keyof typeof tasks | null = null
+    for (const key in tasks) {
+      if (tasks[key as keyof typeof tasks].some((task) => task.id === taskId)) {
+        statusKey = key as keyof typeof tasks
+        break
+      }
+    }
+
+    if (statusKey) {
+      // Update the task in the appropriate status array
+      updatedTasks[statusKey] = updatedTasks[statusKey].map((task) =>
+        task.id === taskId ? { ...task, ...updatedTask } : task,
+      )
+
+      setTasks(updatedTasks)
+      localStorage.setItem(`tasks_${params.id}`, JSON.stringify(updatedTasks))
+    }
+  }
+
+  // Add this function to handle task removals
+  const handleRemoveTask = (taskId: string) => {
+    console.log("Removing task with ID:", taskId)
+
+    const updatedTasks = { ...tasks }
+
+    // Find which status array contains the task and remove it
+    for (const key in tasks) {
+      const statusKey = key as keyof typeof tasks
+      if (updatedTasks[statusKey].some((task) => task.id === taskId)) {
+        updatedTasks[statusKey] = updatedTasks[statusKey].filter((task) => task.id !== taskId)
+        break
+      }
+    }
+
+    // Update state and localStorage
+    setTasks(updatedTasks)
+    localStorage.setItem(`tasks_${params.id}`, JSON.stringify(updatedTasks))
+
+    // Show success message
+    setStatusMessage({
+      type: "success",
+      message: "Task removed successfully",
+    })
+
+    // Clear message after 3 seconds
+    setTimeout(() => {
+      setStatusMessage(null)
+    }, 3000)
   }
 
   if (!isInitialized && isLoading) {
@@ -416,7 +401,7 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
                     height={24}
                     onClick={(e) => {
                       e.stopPropagation()
-                      openTaskModal()
+                      openTableModal()
                     }}
                   />
                 </div>
@@ -534,7 +519,6 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
             </div>
           </div>
 
-
           <div className="flex space-x-4 overflow-x-auto pb-6">
             <TaskColumn
               title="To Do"
@@ -542,6 +526,8 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
               tasks={tasks.todo}
               color="bg-gray-400"
               onAddTask={handleAddTask}
+              onUpdateTask={handleUpdateTask}
+              onRemoveTask={handleRemoveTask}
             />
 
             <TaskColumn
@@ -550,6 +536,8 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
               tasks={tasks.done}
               color="bg-green-400"
               onAddTask={handleAddTask}
+              onUpdateTask={handleUpdateTask}
+              onRemoveTask={handleRemoveTask}
             />
 
             <TaskColumn
@@ -558,6 +546,8 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
               tasks={tasks.progress}
               color="bg-yellow-400"
               onAddTask={handleAddTask}
+              onUpdateTask={handleUpdateTask}
+              onRemoveTask={handleRemoveTask}
             />
 
             <TaskColumn
@@ -566,13 +556,15 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
               tasks={tasks.review}
               color="bg-blue-400"
               onAddTask={handleAddTask}
+              onUpdateTask={handleUpdateTask}
+              onRemoveTask={handleRemoveTask}
             />
 
             <button
               className="fixed bottom-0 right-0 m-10 flex-shrink-0 flex items-center justify-center gap-2 px-6 py-2 bg-purple-600 rounded-sm text-white"
               onClick={(e) => {
                 e.stopPropagation()
-                openTableModal()
+                
               }}
             >
               <svg
@@ -595,7 +587,7 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
         isOpen={isTaskModalOpen}
         onClose={closeTaskModal}
         onSave={handleSaveTask}
-        onRemove={() => {}}
+        onRemove={handleRemoveTask}
         onUpdate={() => {}}
       />
       <NotificationModal isOpen={isNotificationOpen} onClose={closeNotification} />
