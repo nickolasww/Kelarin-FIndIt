@@ -7,9 +7,9 @@ import { useRouter } from "next/navigation"
 import Image from "next/image"
 import EditIcon from "@/assets/icon/EditIcon.png"
 import Notification from "@/assets/icon/Notification.png"
-import TaskModal from "@/components/modal/addtaskmodal"
 import TableModal from "@/components/modal/addtablemodal"
 import NotificationModal from "@/components/modal/notificationmodal"
+import AddTable from "@/components/column/addtable"
 import { getAuthToken } from "@/services/validation"
 
 interface WorkspaceDetailPageProps {
@@ -34,7 +34,7 @@ interface Task {
   tagColor: string
   commentCount: number
   attachmentCount: number
-  status: "todo" | "done" | "progress" | "review"
+  status: string // Changed from enum to string to support custom columns
   deskripsi?: string
   attachments?: string[]
   comment?: string
@@ -57,19 +57,13 @@ interface LinkItem {
 const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDeleteWorkspace }) => {
   const router = useRouter()
   const [workspace, setWorkspace] = useState<Workspace | null>(null)
-  const [tasks, setTasks] = useState<{
-    todo: Task[]
-    done: Task[]
-    progress: Task[]
-    review: Task[]
-  }>({
+  const [tasks, setTasks] = useState<Record<string, Task[]>>({
     todo: [],
     done: [],
     progress: [],
     review: [],
   })
   const [isTableModalOpen, setIsTableModalOpen] = useState(false)
-  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false)
   const [isNotificationOpen, setIsNotificationOpen] = useState(false)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -82,6 +76,9 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
   ])
   const [retryCount, setRetryCount] = useState(0)
   const [isInitialized, setIsInitialized] = useState(false)
+  const [customColumns, setCustomColumns] = useState<string[]>([])
+  const [isAddColumnModalOpen, setIsAddColumnModalOpen] = useState(false)
+  const [newColumnTitle, setNewColumnTitle] = useState("")
 
   const toggleHeader = () => {
     setIsHeaderExpanded(!isHeaderExpanded)
@@ -100,13 +97,6 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
   }
   const closeTableModal = () => {
     setIsTableModalOpen(false)
-  }
-
-  const openTaskModal = () => {
-    setIsTaskModalOpen(true)
-  }
-  const closeTaskModal = () => {
-    setIsTaskModalOpen(false)
   }
 
   const openNotification = () => {
@@ -128,19 +118,41 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
     console.log("Data Workspace yang Dibuat:", formData)
     setIsTableModalOpen(false)
   }
-  const handleSaveTask = (taskData: {
-    deskripsi: string
-    attachments: string[]
-    comment: string
-  }) => {
-    console.log("Task Data Saved:", taskData)
-    closeTableModal()
-  }
 
   const handleDeleteClick = () => {
     console.log("Delete button clicked for workspace:", workspace?.id)
     if (workspace && onDeleteWorkspace) {
       onDeleteWorkspace(workspace.id)
+    }
+  }
+
+  const openAddColumnModal = () => {
+    setIsAddColumnModalOpen(true)
+  }
+
+  const closeAddColumnModal = () => {
+    setIsAddColumnModalOpen(false)
+    setNewColumnTitle("")
+  }
+
+  const handleAddColumn = (title: string) => {
+    if (title.trim()) {
+      const newColumns = [...customColumns, title]
+      setCustomColumns(newColumns)
+
+      // Create a column key for the new column
+      const columnKey = title.toLowerCase().replace(/\s+/g, "_")
+
+      // Update tasks state to include the new column
+      const updatedTasks = { ...tasks }
+      updatedTasks[columnKey] = []
+      setTasks(updatedTasks)
+
+      // Save to localStorage
+      localStorage.setItem(`tasks_${params.id}`, JSON.stringify(updatedTasks))
+      localStorage.setItem(`custom_columns_${params.id}`, JSON.stringify(newColumns))
+
+      closeAddColumnModal()
     }
   }
 
@@ -292,6 +304,16 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
     } else {
       initializeEmptyTasks() // Changed to initialize empty tasks
     }
+
+    // Load custom columns from localStorage
+    const savedCustomColumns = localStorage.getItem(`custom_columns_${params.id}`)
+    if (savedCustomColumns) {
+      try {
+        setCustomColumns(JSON.parse(savedCustomColumns))
+      } catch (error) {
+        console.error("Error parsing custom columns from localStorage:", error)
+      }
+    }
   }
 
   // Modified to initialize empty tasks
@@ -306,11 +328,16 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
     setTasks(emptyTasks)
     localStorage.setItem(`tasks_${params.id}`, JSON.stringify(emptyTasks))
   }
-  
 
   const handleAddTask = (newTask: Task) => {
     const updatedTasks = { ...tasks }
-    updatedTasks[newTask.status] = [...tasks[newTask.status], newTask]
+
+    // Ensure the column exists in the tasks object
+    if (!updatedTasks[newTask.status]) {
+      updatedTasks[newTask.status] = []
+    }
+
+    updatedTasks[newTask.status] = [...updatedTasks[newTask.status], newTask]
     setTasks(updatedTasks)
     localStorage.setItem(`tasks_${params.id}`, JSON.stringify(updatedTasks))
   }
@@ -321,10 +348,10 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
 
     const updatedTasks = { ...tasks }
 
-    let statusKey: keyof typeof tasks | null = null
+    let statusKey: string | null = null
     for (const key in tasks) {
-      if (tasks[key as keyof typeof tasks].some((task) => task.id === taskId)) {
-        statusKey = key as keyof typeof tasks
+      if (tasks[key].some((task) => task.id === taskId)) {
+        statusKey = key
         break
       }
     }
@@ -348,9 +375,8 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
 
     // Find which status array contains the task and remove it
     for (const key in tasks) {
-      const statusKey = key as keyof typeof tasks
-      if (updatedTasks[statusKey].some((task) => task.id === taskId)) {
-        updatedTasks[statusKey] = updatedTasks[statusKey].filter((task) => task.id !== taskId)
+      if (updatedTasks[key].some((task) => task.id === taskId)) {
+        updatedTasks[key] = updatedTasks[key].filter((task) => task.id !== taskId)
         break
       }
     }
@@ -495,7 +521,7 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
                     className="flex items-center justify-center gap-2 px-6 py-2 bg-purple-600 rounded-md text-white"
                     onClick={(e) => {
                       e.stopPropagation()
-                      openTableModal()
+                      openAddColumnModal()
                     }}
                   >
                     <svg
@@ -522,8 +548,8 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
           <div className="flex space-x-4 overflow-x-auto pb-6">
             <TaskColumn
               title="To Do"
-              count={tasks.todo.length}
-              tasks={tasks.todo}
+              count={tasks.todo?.length || 0}
+              tasks={tasks.todo || []}
               color="bg-gray-400"
               onAddTask={handleAddTask}
               onUpdateTask={handleUpdateTask}
@@ -532,8 +558,8 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
 
             <TaskColumn
               title="Done"
-              count={tasks.done.length}
-              tasks={tasks.done}
+              count={tasks.done?.length || 0}
+              tasks={tasks.done || []}
               color="bg-green-400"
               onAddTask={handleAddTask}
               onUpdateTask={handleUpdateTask}
@@ -542,8 +568,8 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
 
             <TaskColumn
               title="On Progress"
-              count={tasks.progress.length}
-              tasks={tasks.progress}
+              count={tasks.progress?.length || 0}
+              tasks={tasks.progress || []}
               color="bg-yellow-400"
               onAddTask={handleAddTask}
               onUpdateTask={handleUpdateTask}
@@ -552,19 +578,36 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
 
             <TaskColumn
               title="In Review"
-              count={tasks.review.length}
-              tasks={tasks.review}
+              count={tasks.review?.length || 0}
+              tasks={tasks.review || []}
               color="bg-blue-400"
               onAddTask={handleAddTask}
               onUpdateTask={handleUpdateTask}
               onRemoveTask={handleRemoveTask}
             />
 
+            {/* Render custom columns */}
+            {customColumns.map((columnTitle) => {
+              const columnKey = columnTitle.toLowerCase().replace(/\s+/g, "_")
+              return (
+                <TaskColumn
+                  key={columnKey}
+                  title={columnTitle}
+                  count={tasks[columnKey]?.length || 0}
+                  tasks={tasks[columnKey] || []}
+                  color="bg-purple-400"
+                  onAddTask={handleAddTask}
+                  onUpdateTask={handleUpdateTask}
+                  onRemoveTask={handleRemoveTask}
+                />
+              )
+            })}
+
             <button
               className="fixed bottom-0 right-0 m-10 flex-shrink-0 flex items-center justify-center gap-2 px-6 py-2 bg-purple-600 rounded-sm text-white"
               onClick={(e) => {
                 e.stopPropagation()
-                
+                openAddColumnModal()
               }}
             >
               <svg
@@ -583,14 +626,14 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
       </div>
 
       <TableModal isOpen={isTableModalOpen} onClose={closeTableModal} onSubmit={handleCreate} />
-      <TaskModal
-        isOpen={isTaskModalOpen}
-        onClose={closeTaskModal}
-        onSave={handleSaveTask}
-        onRemove={handleRemoveTask}
-        onUpdate={() => {}}
-      />
       <NotificationModal isOpen={isNotificationOpen} onClose={closeNotification} />
+      <AddTable
+        isOpen={isAddColumnModalOpen}
+        onClose={closeAddColumnModal}
+        onSubmit={handleAddColumn}
+        columnTitle={newColumnTitle}
+        setColumnTitle={setNewColumnTitle}
+      />
 
       {statusMessage && (
         <div

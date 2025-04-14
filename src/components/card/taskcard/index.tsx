@@ -8,7 +8,7 @@ interface TaskCardProps {
   tagColor: string
   commentCount: number
   attachmentCount: number
-  status: "todo" | "done" | "progress" | "review"
+  status: string // Changed from union type to string to support custom columns
   onclick?: () => void
 }
 
@@ -32,7 +32,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
       case "review":
         return "bg-blue-400"
       default:
-        return "bg-gray-300"
+        return "bg-purple-400" // Default color for custom columns
     }
   }
 

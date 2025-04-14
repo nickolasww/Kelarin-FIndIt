@@ -3,8 +3,7 @@
 import type React from "react"
 import { useState } from "react"
 import TaskCard from "@/components/card/taskcard/index"
-import AddTaskModal from "@/components/modal/addtaskmodal/index"
-import EditTaskModal from "@/components/modal/edittaskmodal/index"
+import AddTaskModal from "@/components/modal/addtaskmodal"
 
 interface Task {
   id: string
@@ -13,7 +12,7 @@ interface Task {
   tagColor: string
   commentCount: number
   attachmentCount: number
-  status: "todo" | "done" | "progress" | "review"
+  status: string // Changed from enum to string to support custom columns
   deskripsi?: string
   attachments?: string[]
   comment?: string
@@ -24,9 +23,9 @@ interface TaskColumnProps {
   count: number
   tasks: Task[]
   color: string
-  onAddTask?: (task: Task) => void
-  onUpdateTask?: (taskId: string, updatedTask: Partial<Task>) => void
-  onRemoveTask?: (taskId: string) => void
+  onAddTask: (task: Task) => void
+  onUpdateTask: (taskId: string, updatedTask: Partial<Task>) => void
+  onRemoveTask: (taskId: string) => void
 }
 
 const TaskColumn: React.FC<TaskColumnProps> = ({
@@ -41,6 +40,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
   const [modalOpen, setModalOpen] = useState(false)
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [currentTaskId, setCurrentTaskId] = useState<string | null>(null)
+  const [currentTask, setCurrentTask] = useState<Task | null>(null)
   const [newTaskData, setNewTaskData] = useState({
     title: "",
     deskripsi: "",
@@ -48,24 +48,27 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
     comment: "",
   })
 
-  // handle Open Modal
+  // handle Open Modal for creating a new task
   const handleOpenCreateModal = () => {
+    setCurrentTaskId(null)
+    setCurrentTask(null)
     setNewTaskData({
       title: "",
       deskripsi: "",
       attachments: [],
       comment: "",
     })
-    setCurrentTaskId(null)
     setModalOpen(true)
   }
+
   const handleCloseModal = () => {
     setModalOpen(false)
   }
 
-  // handle Open Edit Modal
+  // handle Open Modal for editing an existing task
   const handleOpenEditModal = (task: Task) => {
     setCurrentTaskId(task.id)
+    setCurrentTask(task)
     setNewTaskData({
       title: task.title,
       deskripsi: task.deskripsi || "",
@@ -74,109 +77,77 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
     })
     setEditModalOpen(true)
   }
+
   const handleCloseEditModal = () => {
     setEditModalOpen(false)
   }
 
-  //handle save
+  // Handle title change
+  const handleTitleChange = (title: string) => {
+    setNewTaskData((prev) => ({ ...prev, title }))
+  }
+
+  // Handle saving a new task
   const handleSaveTask = (data: {
     deskripsi: string
     attachments: string[]
     comment: string
   }) => {
-    if (currentTaskId) {
-      if (onUpdateTask) {
-        onUpdateTask(currentTaskId, {
-          deskripsi: data.deskripsi,
-          attachments: data.attachments,
-          comment: data.comment,
-          attachmentCount: data.attachments.length,
-          title: newTaskData.title, // Ensure title is updated
-        })
-      }
-    } else {
-      if (onAddTask) {
-        const status =
-          title === "To Do" ? "todo" : title === "Done" ? "done" : title === "On Progress" ? "progress" : "review"
-
-        const newTask: Task = {
-          id: Date.now().toString(),
-          title: newTaskData.title || "New Task",
-          tag: "Task",
-          tagColor: "purple",
-          commentCount: data.comment ? 1 : 0,
-          attachmentCount: data.attachments.length,
-          status: status as "todo" | "done" | "progress" | "review",
-          deskripsi: data.deskripsi,
-          attachments: data.attachments,
-          comment: data.comment,
-        }
-        onAddTask(newTask)
-      }
-    }
-    setModalOpen(false)
-  }
-
-  const handleTitleChange = (title: string) => {
-    setNewTaskData((prev) => {
-      if (prev.title !== title) {
-        return { ...prev, title }
-      }
-      return prev
-    })
-  }
-
-  // Updated to handle task removal with taskId parameter
-  const handleRemoveTask = (taskId: string) => {
-    if (taskId && onRemoveTask) {
-      console.log("Removing task with ID:", taskId)
-
-      // Call onRemoveTask to update the parent component's state
-      onRemoveTask(taskId)
-
-      // Close the appropriate modal
-      if (editModalOpen) {
-        setEditModalOpen(false)
-      } else if (modalOpen) {
-        setModalOpen(false)
-      }
-    }
-  }
-
-  // update Edit task
-  const handleUpdateEditTask = (data: {
-    title: string
-    description: string
-    attachments: string[]
-    comment: string
-  }) => {
-    if (currentTaskId && onUpdateTask) {
+    if (currentTaskId && currentTask) {
+      // Update existing task
       onUpdateTask(currentTaskId, {
-        title: data.title,
-        deskripsi: data.description,
+        title: newTaskData.title,
+        deskripsi: data.deskripsi,
         attachments: data.attachments,
         comment: data.comment,
+        attachmentCount: data.attachments.length,
+        commentCount: data.comment ? 1 : 0,
+      })
+    } else {
+      // Create new task
+      // Convert the column title to a status key
+      const statusKey =
+        title === "To Do"
+          ? "todo"
+          : title === "Done"
+            ? "done"
+            : title === "On Progress"
+              ? "progress"
+              : title === "In Review"
+                ? "review"
+                : title.toLowerCase().replace(/\s+/g, "_")
+
+      const newTask: Task = {
+        id: Date.now().toString(),
+        title: newTaskData.title || "New Task",
+        tag: "Task",
+        tagColor: "purple",
         commentCount: data.comment ? 1 : 0,
         attachmentCount: data.attachments.length,
-      })
+        status: statusKey, // Use the statusKey derived from the column title
+        deskripsi: data.deskripsi,
+        attachments: data.attachments,
+        comment: data.comment,
+      }
+      onAddTask(newTask)
     }
+    setModalOpen(false)
     setEditModalOpen(false)
   }
 
-  // update comment
-  const handleUpdateComment = (comment: string, attachments: string[]) => {
-    if (currentTaskId && onUpdateTask) {
-      onUpdateTask(currentTaskId, {
-        comment,
-        attachments,
-        commentCount: comment ? 1 : 0,
-        attachmentCount: attachments.length,
-      })
+  // Handle task removal
+  const handleRemoveTask = (taskId: string) => {
+    if (taskId) {
+      console.log("Removing task with ID:", taskId)
+      onRemoveTask(taskId)
+      setModalOpen(false)
+      setEditModalOpen(false)
     }
   }
 
+  // Handle task update
   const handleUpdateTask = (comment: string, attachments: string[]) => {
-    if (currentTaskId && onUpdateTask) {
+    if (currentTaskId) {
       onUpdateTask(currentTaskId, {
         comment,
         attachments,
@@ -225,20 +196,12 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
             commentCount={task.commentCount}
             attachmentCount={task.attachmentCount}
             status={task.status}
-            onclick={() => {
-              // Open modal for editing existing task
-              setCurrentTaskId(task.id)
-              setNewTaskData({
-                title: task.title,
-                deskripsi: task.deskripsi || "",
-                attachments: task.attachments || [],
-                comment: task.comment || "",
-              })
-              setEditModalOpen(true)
-            }}
+            onclick={() => handleOpenEditModal(task)}
           />
         ))}
       </div>
+
+      {/* Task creation modal */}
       <AddTaskModal
         isOpen={modalOpen}
         onClose={handleCloseModal}
@@ -250,21 +213,25 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
         initialAttachments={newTaskData.attachments}
         initialComment={newTaskData.comment}
         onTitleChange={handleTitleChange}
-        taskId={currentTaskId || ""} // Pass the current task ID to the modal
+        taskId={currentTaskId || ""}
       />
 
-      <EditTaskModal
-        cardId={currentTaskId ? Number.parseInt(currentTaskId, 10) || 0 : 0}
-        isOpen={editModalOpen}
-        onClose={handleCloseEditModal}
-        onSave={handleUpdateEditTask}
-        onRemove={(cardId) => handleRemoveTask(cardId.toString())}
-        onUpdate={handleUpdateComment}
-        initialTitle={newTaskData.title}
-        initialDescription={newTaskData.deskripsi}
-        initialAttachments={newTaskData.attachments}
-        initialComment={newTaskData.comment}
-      />
+      {/* Task editing modal */}
+      {currentTask && (
+        <AddTaskModal
+          isOpen={editModalOpen}
+          onClose={handleCloseEditModal}
+          onSave={handleSaveTask}
+          onRemove={handleRemoveTask}
+          onUpdate={handleUpdateTask}
+          taskId={currentTaskId || ""}
+          initialTitle={currentTask.title}
+          initialDescription={currentTask.deskripsi || ""}
+          initialAttachments={currentTask.attachments || []}
+          initialComment={currentTask.comment || ""}
+          onTitleChange={handleTitleChange}
+        />
+      )}
     </div>
   )
 }

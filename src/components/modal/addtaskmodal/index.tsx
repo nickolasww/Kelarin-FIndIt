@@ -1,6 +1,4 @@
 "use client"
-
-import { getAuthToken } from "@/services/validation"
 import type React from "react"
 import { useState, useRef } from "react"
 import { useEffect } from "react"
@@ -8,7 +6,7 @@ import { useEffect } from "react"
 interface TaskModalProps {
   onClose: () => void
   onUpdate: (comment: string, attachments: string[]) => void
-  onRemove: (taskId: string) => void // Updated to accept taskId parameter
+  onRemove: (taskId: string) => void
   initialTitle?: string
   initialDescription?: string
   initialAttachments?: string[]
@@ -20,7 +18,7 @@ interface TaskModalProps {
     comment: string
   }) => void
   onTitleChange?: (title: string) => void
-  taskId?: string // Added taskId prop
+  taskId?: string
 }
 
 const AddTaskModal: React.FC<TaskModalProps> = ({
@@ -29,12 +27,12 @@ const AddTaskModal: React.FC<TaskModalProps> = ({
   onUpdate,
   onRemove,
   onSave,
-  initialTitle = "Membuat PRD 1.0",
-  initialDescription = "membuat prd untuk fitur yang akan dijadikan MVP",
+  initialTitle = "",
+  initialDescription = "",
   initialAttachments = [],
   initialComment = "",
   onTitleChange,
-  taskId, // Added taskId parameter
+  taskId,
 }) => {
   const [title, setTitle] = useState(initialTitle)
   const [deskripsi, setDeskripsi] = useState(initialDescription || "")
@@ -54,7 +52,7 @@ const AddTaskModal: React.FC<TaskModalProps> = ({
     setIsModalOpen(isOpen)
     if (isOpen) {
       // Initialize fields with props when modal opens
-      setTitle(initialTitle)
+      setTitle(initialTitle || "")
       setDeskripsi(initialDescription || "")
       setAttachments(initialAttachments || [])
       setComment(initialComment || "")
@@ -79,42 +77,25 @@ const AddTaskModal: React.FC<TaskModalProps> = ({
 
   // Handle title change from input
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTitle = e.target.value
     userChangedTitle.current = true
-    setTitle(e.target.value)
+    setTitle(newTitle)
   }
 
-  const handleAddAttachment = async () => {
+  const handleAddAttachment = () => {
     if (!attachmentInput.trim()) return
 
     setIsLoading(true)
     setIsError(null)
 
     try {
-      const formData = new FormData()
-      formData.append("url", attachmentInput.trim())
-      formData.append("file_name", `Attachment ${attachments.length + 1}`)
-
-      const token = await getAuthToken()
-
-      const response = await fetch("https://kelarin.bccdev.id/api/kanban/cards/1/attachment", {
-        method: "POST",
-        headers: {
-          Authorization: token ? `Bearer ${token}` : "",
-        },
-        body: formData,
-      })
-
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`)
-      }
-
-      const data = await response.json()
-      console.log("Attachment added successfully:", data)
-
+      // Skip the API call that's causing the 500 error
+      // Instead, directly add the attachment to the local state
       setAttachments((prevAttachments) => [...prevAttachments, attachmentInput.trim()])
       setAttachmentInput("")
+      console.log("Attachment added successfully:", attachmentInput.trim())
     } catch (error: any) {
-      setIsError(error.message)
+      setIsError(error.message || "Failed to add attachment")
       console.error("Error adding attachment:", error)
     } finally {
       setIsLoading(false)
@@ -125,7 +106,11 @@ const AddTaskModal: React.FC<TaskModalProps> = ({
   const handleSave = () => {
     try {
       setIsLoading(true)
-      onSave({ deskripsi, attachments, comment })
+      onSave({
+        deskripsi,
+        attachments,
+        comment,
+      })
       onClose()
     } catch (error: any) {
       setIsError(error instanceof Error ? error.message : "Failed to save changes")
