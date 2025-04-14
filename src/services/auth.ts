@@ -67,7 +67,7 @@ export async function loginUser(email: string, password: string) {
     const headers = {
       ...options.headers,
       Authorization: token ? `Bearer ${token}` : "",
-      "Content-Type": "application/json", // Assuming JSON content type
+      "Content-Type": "application/json", 
     }
   
     const updatedOptions: RequestInit = {

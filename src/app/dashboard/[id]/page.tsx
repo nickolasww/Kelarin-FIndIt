@@ -64,12 +64,9 @@ const DashboardPage = () => {
     setIsInitialized(true)
   }, [currentPageId])
 
-  // Check authentication on component mount
   useEffect(() => {
     if (!isAuthenticated()) {
       console.warn("User is not authenticated")
-      // Optionally redirect to login
-      // router.push("/login")
     }
   }, [])
 
@@ -80,15 +77,12 @@ const DashboardPage = () => {
     }
     if (content === "logout") {
       console.log("Logging out...")
-      // Add logout logic here
       return
     }
     setActiveContent(content)
   }
 
   const openDeleteModal = (workspaceId?: number) => {
-    // If a specific workspaceId is provided, use it
-    // Otherwise, use the current workspace ID from the URL
     const idToDelete = workspaceId || currentWorkspaceId
     console.log("Opening delete modal for workspace ID:", idToDelete)
 
@@ -121,7 +115,6 @@ const DashboardPage = () => {
 
   const handleInviteFriend = (email: string) => {
     console.log("Inviting friend with email:", email)
-    // logic to invite friend
     closeInviteModal()
   }
 
@@ -131,8 +124,6 @@ const DashboardPage = () => {
 
     try {
       console.log("Making DELETE request to:", `https://kelarin.bccdev.id/api/workspace/${workspaceId}`)
-
-      // Get the authentication token using your existing method
       const token = getAuthToken()
 
       if (!token) {
@@ -149,7 +140,7 @@ const DashboardPage = () => {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // Add the authentication token
+          Authorization: `Bearer ${token}`,
         },
       })
 
@@ -159,28 +150,21 @@ const DashboardPage = () => {
         const errorText = await response.text()
         console.error("API error response:", errorText)
 
-        // Handle specific error cases
         if (response.status === 401) {
           setStatusMessage({
             type: "error",
             message: "Your session has expired. Please log in again.",
           })
 
-          // Optionally redirect to login page
-          // setTimeout(() => {
-          //   router.push("/login")
-          // }, 2000)
         } else {
           throw new Error(`Failed to delete workspace: ${response.status} - ${errorText}`)
         }
         return
       }
 
-      // Handle successful deletion
       console.log("Workspace deleted successfully")
       setStatusMessage({ type: "success", message: "Workspace deleted successfully" })
 
-      // Remove from localStorage if you're using it
       const savedWorkspaces = localStorage.getItem("workspaces")
       if (savedWorkspaces) {
         try {
@@ -193,10 +177,8 @@ const DashboardPage = () => {
         }
       }
 
-      // Close the modal after a short delay to show the success message
       setTimeout(() => {
         closeDeleteModal()
-        // Navigate back to the dashboard
         router.push("/dashboard")
       }, 1500)
     } catch (error) {
@@ -207,7 +189,6 @@ const DashboardPage = () => {
     }
   }
 
-  // Don't render until we've initialized the component
   if (!isInitialized) {
     return <div className="flex justify-center items-center h-screen">Loading...</div>
   }

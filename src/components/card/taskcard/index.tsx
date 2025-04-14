@@ -8,7 +8,7 @@ interface TaskCardProps {
   tagColor: string
   commentCount: number
   attachmentCount: number
-  status: string // Changed from union type to string to support custom columns
+  status: string 
   onclick?: () => void
 }
 

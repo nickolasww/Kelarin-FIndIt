@@ -34,7 +34,7 @@ interface Task {
   tagColor: string
   commentCount: number
   attachmentCount: number
-  status: string // Changed from enum to string to support custom columns
+  status: string 
   deskripsi?: string
   attachments?: string[]
   comment?: string
@@ -169,29 +169,20 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
 
   // Handle column deletion
   const handleDeleteColumn = (columnTitle: string) => {
-    // Create column key from title
     const columnKey = columnTitle.toLowerCase().replace(/\s+/g, "_")
-
-    // Remove column from customColumns
     const updatedColumns = customColumns.filter((col) => col !== columnTitle)
     setCustomColumns(updatedColumns)
-
-    // Remove column and its tasks from tasks object
     const updatedTasks = { ...tasks }
     delete updatedTasks[columnKey]
     setTasks(updatedTasks)
 
-    // Save to localStorage
     localStorage.setItem(`tasks_${params.id}`, JSON.stringify(updatedTasks))
     localStorage.setItem(`custom_columns_${params.id}`, JSON.stringify(updatedColumns))
 
-    // Show success message
     setStatusMessage({
       type: "success",
       message: `Column "${columnTitle}" deleted successfully`,
     })
-
-    // Clear message after 3 seconds
     setTimeout(() => {
       setStatusMessage(null)
     }, 3000)
@@ -340,13 +331,12 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
         setTasks(JSON.parse(savedTasks))
       } catch (error) {
         console.error("Error parsing tasks from localStorage:", error)
-        initializeEmptyTasks() // Changed to initialize empty tasks
+        initializeEmptyTasks() 
       }
     } else {
-      initializeEmptyTasks() // Changed to initialize empty tasks
+      initializeEmptyTasks() 
     }
 
-    // Load custom columns from localStorage
     const savedCustomColumns = localStorage.getItem(`custom_columns_${params.id}`)
     if (savedCustomColumns) {
       try {
@@ -357,7 +347,6 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
     }
   }
 
-  // Modified to initialize empty tasks
   const initializeEmptyTasks = () => {
     const emptyTasks = {
       todo: [],
@@ -373,7 +362,6 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
   const handleAddTask = (newTask: Task) => {
     const updatedTasks = { ...tasks }
 
-    // Ensure the column exists in the tasks object
     if (!updatedTasks[newTask.status]) {
       updatedTasks[newTask.status] = []
     }
@@ -383,7 +371,6 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
     localStorage.setItem(`tasks_${params.id}`, JSON.stringify(updatedTasks))
   }
 
-  // Add this function to handle task updates
   const handleUpdateTask = (taskId: string, updatedTask: Partial<Task>) => {
     console.log("Updating task with ID:", taskId, "with data:", updatedTask)
 
@@ -398,7 +385,6 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
     }
 
     if (statusKey) {
-      // Update the task in the appropriate status array
       updatedTasks[statusKey] = updatedTasks[statusKey].map((task) =>
         task.id === taskId ? { ...task, ...updatedTask } : task,
       )
@@ -408,13 +394,11 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
     }
   }
 
-  // Add this function to handle task removals
   const handleRemoveTask = (taskId: string) => {
     console.log("Removing task with ID:", taskId)
 
     const updatedTasks = { ...tasks }
 
-    // Find which status array contains the task and remove it
     for (const key in tasks) {
       if (updatedTasks[key].some((task) => task.id === taskId)) {
         updatedTasks[key] = updatedTasks[key].filter((task) => task.id !== taskId)
@@ -422,17 +406,14 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
       }
     }
 
-    // Update state and localStorage
     setTasks(updatedTasks)
     localStorage.setItem(`tasks_${params.id}`, JSON.stringify(updatedTasks))
 
-    // Show success message
     setStatusMessage({
       type: "success",
       message: "Task removed successfully",
     })
 
-    // Clear message after 3 seconds
     setTimeout(() => {
       setStatusMessage(null)
     }, 3000)

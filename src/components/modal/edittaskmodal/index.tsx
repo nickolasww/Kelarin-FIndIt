@@ -112,7 +112,6 @@ const EditTaskModal: React.FC<TaskModalProps> = ({
     try {
       const token = await getAuthToken()
 
-      // Log the request details for debugging
       console.log(`Attempting to delete card with ID: ${cardId}`)
       console.log(`Using endpoint: https://kelarin.bccdev.id/api/kanban/cards/${cardId}`)
 
@@ -131,15 +130,12 @@ const EditTaskModal: React.FC<TaskModalProps> = ({
 
       console.log("Task removed successfully")
       
-      // Convert cardId to string before calling onRemove
       onRemove(cardId.toString())
       onClose()
     } catch (err: any) {
       console.error("Error removing task:", err)
       setError(err.message || "Failed to remove task. Network error or server unavailable.")
       
-      // IMPORTANT: Even if the API call fails, still update the UI
-      // This ensures the card disappears from the UI even if the server fails to delete it
       console.log("API call failed, but still removing card from UI")
       onRemove(cardId.toString())
       onClose()

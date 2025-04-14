@@ -13,7 +13,7 @@ interface Task {
   tagColor: string
   commentCount: number
   attachmentCount: number
-  status: string // Changed from enum to string to support custom columns
+  status: string
   deskripsi?: string
   attachments?: string[]
   comment?: string
@@ -55,7 +55,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
-  // Close menu when clicking outside
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -72,7 +72,6 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
     }
   }, [menuOpen])
 
-  // handle Open Modal for creating a new task
   const handleOpenCreateModal = () => {
     setCurrentTaskId(null)
     setCurrentTask(null)
@@ -89,7 +88,6 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
     setModalOpen(false)
   }
 
-  // handle Open Modal for editing an existing task
   const handleOpenEditModal = (task: Task) => {
     setCurrentTaskId(task.id)
     setCurrentTask(task)
@@ -106,19 +104,16 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
     setEditModalOpen(false)
   }
 
-  // Handle title change
   const handleTitleChange = (title: string) => {
     setNewTaskData((prev) => ({ ...prev, title }))
   }
 
-  // Handle saving a new task
   const handleSaveTask = (data: {
     deskripsi: string
     attachments: string[]
     comment: string
   }) => {
     if (currentTaskId && currentTask) {
-      // Update existing task
       onUpdateTask(currentTaskId, {
         title: newTaskData.title,
         deskripsi: data.deskripsi,
@@ -128,8 +123,6 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
         commentCount: data.comment ? 1 : 0,
       })
     } else {
-      // Create new task
-      // Convert the column title to a status key
       const statusKey =
         title === "To Do"
           ? "todo"
@@ -148,7 +141,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
         tagColor: "purple",
         commentCount: data.comment ? 1 : 0,
         attachmentCount: data.attachments.length,
-        status: statusKey, // Use the statusKey derived from the column title
+        status: statusKey, 
         deskripsi: data.deskripsi,
         attachments: data.attachments,
         comment: data.comment,
@@ -159,7 +152,6 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
     setEditModalOpen(false)
   }
 
-  // Handle task removal
   const handleRemoveTask = (taskId: string) => {
     if (taskId) {
       console.log("Removing task with ID:", taskId)
@@ -169,7 +161,6 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
     }
   }
 
-  // Handle task update
   const handleUpdateTask = (comment: string, attachments: string[]) => {
     if (currentTaskId) {
       onUpdateTask(currentTaskId, {
@@ -181,7 +172,6 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
     }
   }
 
-  // Handle column deletion
   const handleDeleteColumn = () => {
     const isDefaultColumn = ["To Do", "Done", "On Progress", "In Review"].includes(title)
 
@@ -199,7 +189,6 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
     }
   }
 
-  // Add this function to prevent clicks inside the menu from bubbling up
   const handleMenuClick = (e: React.MouseEvent) => {
     e.stopPropagation()
   }

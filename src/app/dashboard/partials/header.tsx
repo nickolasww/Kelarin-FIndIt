@@ -37,14 +37,14 @@ const Header: React.FC<HeaderProps> = ({ OpenInviteModal, OpenStreakModal }) => 
           </button>
 
           <div className="flex items-center gap-2">
-            <span role="img" aria-label="fire" className="text-xl sm:text-2xl cursor-pointer" > {/* Responsive text size */}
+            <span role="img" aria-label="fire" className="text-xl sm:text-2xl cursor-pointer" > 
               <Image
                 src={StreakIcon}
                 alt='Streak Icon'
                 onClick={OpenStreakModal}
               />
             </span>
-            <span className="font-bold text-sm sm:text-base ml-1">365 Days</span> {/* Responsive text size */}
+            <span className="font-bold text-sm sm:text-base ml-1">365 Days</span>
           </div>
         </div>
       </header>

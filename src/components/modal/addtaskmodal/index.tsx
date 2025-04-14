@@ -43,27 +43,21 @@ const AddTaskModal: React.FC<TaskModalProps> = ({
   const [isLoading, setIsLoading] = useState(false)
   const [isError, setIsError] = useState<string | null>(null)
 
-  // Use a ref to track if this is the initial render
   const initialRender = useRef(true)
-  // Use a ref to track if title was changed by user vs. prop change
   const userChangedTitle = useRef(false)
 
   useEffect(() => {
     setIsModalOpen(isOpen)
     if (isOpen) {
-      // Initialize fields with props when modal opens
       setTitle(initialTitle || "")
       setDeskripsi(initialDescription || "")
       setAttachments(initialAttachments || [])
       setComment(initialComment || "")
       setIsError(null)
-      // Reset the user changed flag when modal opens
       userChangedTitle.current = false
     }
   }, [isOpen, initialTitle, initialDescription, initialAttachments, initialComment])
 
-  // Only notify parent of title changes when user explicitly changes the title
-  // and not on initial render or when props change
   useEffect(() => {
     if (initialRender.current) {
       initialRender.current = false
@@ -75,7 +69,6 @@ const AddTaskModal: React.FC<TaskModalProps> = ({
     }
   }, [title, onTitleChange])
 
-  // Handle title change from input
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTitle = e.target.value
     userChangedTitle.current = true
@@ -89,8 +82,6 @@ const AddTaskModal: React.FC<TaskModalProps> = ({
     setIsError(null)
 
     try {
-      // Skip the API call that's causing the 500 error
-      // Instead, directly add the attachment to the local state
       setAttachments((prevAttachments) => [...prevAttachments, attachmentInput.trim()])
       setAttachmentInput("")
       console.log("Attachment added successfully:", attachmentInput.trim())
@@ -102,7 +93,6 @@ const AddTaskModal: React.FC<TaskModalProps> = ({
     }
   }
 
-  // Handle save button click
   const handleSave = () => {
     try {
       setIsLoading(true)
@@ -120,7 +110,6 @@ const AddTaskModal: React.FC<TaskModalProps> = ({
     }
   }
 
-  // Handle remove task
   const handleRemoveTask = () => {
     if (taskId) {
       console.log("Removing task with ID:", taskId)
@@ -132,12 +121,10 @@ const AddTaskModal: React.FC<TaskModalProps> = ({
     }
   }
 
-  // Handle remove attachment
   const handleRemoveAttachment = (index: number) => {
     setAttachments((prevAttachments) => prevAttachments.filter((_, i) => i !== index))
   }
 
-  // Handle post comment
   const handlePostComment = async () => {
     if (!comment.trim()) return
 
@@ -262,7 +249,6 @@ const AddTaskModal: React.FC<TaskModalProps> = ({
 
         {/* Actions */}
         <div className="flex justify-center gap-2 mt-9">
-          {/* Add Remove button if taskId is provided */}
           {taskId && (
             <button
               onClick={handleRemoveTask}

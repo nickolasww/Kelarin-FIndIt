@@ -15,7 +15,6 @@ interface MainContentProps {
 }
 
 function WorkspaceList({ workspaces, onDelete }: { workspaces: Workspace[]; onDelete: (workspaceId: number) => void }) {
-  // Log workspaces to help with debugging
   useEffect(() => {
     console.log("WorkspaceList rendering with workspaces:", workspaces)
   }, [workspaces])
@@ -23,7 +22,6 @@ function WorkspaceList({ workspaces, onDelete }: { workspaces: Workspace[]; onDe
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {workspaces.map((workspace) => {
-        // Generate a fallback key if id is missing
         const key = workspace.id ? `workspace-${workspace.id}` : `workspace-${Math.random().toString(36).substr(2, 9)}`
 
         if (!workspace.id) {
@@ -39,20 +37,16 @@ function WorkspaceList({ workspaces, onDelete }: { workspaces: Workspace[]; onDe
 
 const MainContent: React.FC<MainContentProps> = ({ workspaces: initialWorkspaces, onWorkspaceDeleted }) => {
   const [searchTerm, setSearchTerm] = useState<string>("")
-  // Create local state to manage workspaces
   const [workspaces, setWorkspaces] = useState<Workspace[]>(initialWorkspaces)
 
-  // Update local state when props change
   useEffect(() => {
     setWorkspaces(initialWorkspaces)
   }, [initialWorkspaces])
 
-  // Log workspaces to help with debugging
   useEffect(() => {
     console.log("MainContent rendering with workspaces:", workspaces)
   }, [workspaces])
 
-  // Filter workspaces based on search term
   const filteredWorkspaces = useMemo(() => {
     if (!searchTerm.trim()) return workspaces
 
@@ -65,17 +59,12 @@ const MainContent: React.FC<MainContentProps> = ({ workspaces: initialWorkspaces
     })
   }, [workspaces, searchTerm])
 
-  // Get the most recent 3 workspaces
   const recentWorkspaces = useMemo(() => {
     return [...filteredWorkspaces].slice(-3).reverse()
   }, [filteredWorkspaces])
 
-  // Handle workspace deletion
   const handleWorkspaceDelete = (workspaceId: number) => {
-    // Update local state immediately to reflect the deletion in UI
     setWorkspaces((prevWorkspaces) => prevWorkspaces.filter((workspace) => workspace.id !== workspaceId))
-
-    // Also notify parent component about the deletion
     onWorkspaceDeleted(workspaceId)
   }
 
