@@ -4,7 +4,7 @@ import Input from "@/components/input";
 import Button from "@/components/button";
 import Logo from "@/assets/icon/Logo.svg";
 import Image from "next/image";
-import { useRouter } from "next/navigation"
+import { useRouter } from "next/navigation";
 import { registerUser } from "@/services/auth";
 
 export default function Login() {
@@ -16,45 +16,45 @@ export default function Login() {
   const router = useRouter();
 
   const handleRegister = async () => {
-    setError("")
+    setError("");
 
     if (!fullName || !email || !password) {
-      setError("All fields are required!")
-      return
+      setError("All fields are required!");
+      return;
     }
 
-    const trimmedName = fullName.trim()
-    const trimmedEmail = email.trim()
-    const trimmedPassword = password.trim()
+    const trimmedName = fullName.trim();
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
 
     if (!trimmedName || !trimmedEmail || !trimmedPassword) {
-      setError("Fields cannot be just whitespace!")
-      return
+      setError("Fields cannot be just whitespace!");
+      return;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(trimmedEmail)) {
-      setError("Please enter a valid email address!")
-      return
+      setError("Please enter a valid email address!");
+      return;
     }
 
     if (trimmedPassword.length < 6) {
-      setError("Password must be at least 6 characters long!")
-      return
+      setError("Password must be at least 6 characters long!");
+      return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
-      const userData = await registerUser(trimmedName, trimmedEmail, trimmedPassword)
-      router.push("/login")
-    } catch (error) {
-      console.error(error)
-      setError(error instanceof Error ? error.message : "An error occurred during registration. Please try again.")
+      await registerUser(trimmedName, trimmedEmail, trimmedPassword); // Removed userData assignment
+      router.push("/login");
+    } catch (err) { // Changed error to err
+      console.error(err);
+      setError(err instanceof Error ? err.message : "An error occurred during registration. Please try again.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
   return (
     <section className="flex">
       <div className="hidden lg:block lg:w-[40rem]">
@@ -120,7 +120,7 @@ export default function Login() {
 
             <div className="flex flex-col items-center">
               <Button
-                text={isLoading? "Signing Up..." : "Sign Up"}
+                text={isLoading ? "Signing Up..." : "Sign Up"}
                 className={`mt-6 w-full bg-purple-800 p-3 font-semibold rounded-lg text-white ${
                   isLoading ? "opacity-70 cursor-not-allowed" : "cursor-pointer"
                 }`}

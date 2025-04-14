@@ -1,52 +1,51 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Input from "@/components/input"
-import Button from "@/components/button"
-import Logo from "@/assets/icon/Logo.svg"
-import Image from "next/image"
-import { useRouter } from "next/navigation"
-import { loginUser, storeUserSession } from "@/services/auth"
-
+import { useState } from "react";
+import Input from "@/components/input";
+import Button from "@/components/button";
+import Logo from "@/assets/icon/Logo.svg";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { loginUser, storeUserSession } from "@/services/auth";
 
 export default function Login() {
-  const [email, setEmail] = useState<string>("")
-  const [password, setPassword] = useState<string>("")
-  const [error, setError] = useState<string>("")
-  const [isLoading, setIsLoading] = useState<boolean>(false)
-  const router = useRouter()
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const router = useRouter();
 
   const handleLogin = async () => {
-    setError("")
+    setError("");
 
     if (!email || !password) {
-      setError("Email and password are required!")
-      return
+      setError("Email and password are required!");
+      return;
     }
 
-    const trimmedEmail = email.trim()
-    const trimmedPassword = password.trim()
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
 
     if (!trimmedEmail || !trimmedPassword) {
-      setError("Email and password cannot be just whitespace!")
-      return
+      setError("Email and password cannot be just whitespace!");
+      return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
-      const userData = await loginUser(trimmedEmail, trimmedPassword)
+      const userData = await loginUser(trimmedEmail, trimmedPassword);
 
-      storeUserSession(userData)
+      storeUserSession(userData);
 
-      router.push("/dashboard")
-    } catch (error) {
-      console.error(error)
-      setError(error instanceof Error ? error.message : "An error occurred during login. Please try again.")
+      router.push("/dashboard");
+    } catch (err) {
+      console.error(err);
+      setError(err instanceof Error ? err.message : "An error occurred during login. Please try again.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <section className="flex">
@@ -108,7 +107,7 @@ export default function Login() {
           </div>
 
           <p className="text-center pt-8 md:pt-10">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <a href="/register" className="text-purple-500">
               Sign Up
             </a>
@@ -116,5 +115,5 @@ export default function Login() {
         </div>
       </div>
     </section>
-  )
+  );
 }

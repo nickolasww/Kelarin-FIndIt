@@ -10,7 +10,7 @@ export default function About() {
     <div className="flex flex-col justify-center items-center gap-5 p-4 md:p-8 lg:p-0 xl:p-0">
       <h1 className="text-3xl md:text-5xl font-bold text-purple-800">About Kelarin</h1>
       <p className="text-center text-xl">
-        <span className="font-bold">Task management</span> shouldn't be boring
+        <span className="font-bold">Task management</span> shouldn&apos;t be boring
         <span className="font-bold"> -Kelarin</span> makes it fun and rewarding!
       </p>
 
