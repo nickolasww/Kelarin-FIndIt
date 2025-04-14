@@ -124,7 +124,7 @@ export default function Login() {
                 className={`mt-6 w-full bg-purple-800 p-3 font-semibold rounded-lg text-white ${
                   isLoading ? "opacity-70 cursor-not-allowed" : "cursor-pointer"
                 }`}
-                onclick={handleRegister}
+                onClick={handleRegister}
                 disabled={isLoading}
               />
             </div>

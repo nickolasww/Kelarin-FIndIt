@@ -12,10 +12,10 @@ export default function Hero() {
           boost motivation and productivity
         </p>
         <div className="flex flex-col md:flex-row items-center justify-center gap-5">
-          <Button
+        <a href="/login"><Button
             className="bg-purple-800 p-3 font-semibold rounded-lg text-white cursor-pointer"
             text="Get Started"
-          />
+          /></a>
           <Button
             className="border-2 p-3 rounded-lg font-semibold border-purple-800 text-purple-800 bg-white cursor-pointer"
             text="Learn More"
