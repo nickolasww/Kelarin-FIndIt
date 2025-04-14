@@ -37,8 +37,15 @@ function WorkspaceList({ workspaces, onDelete }: { workspaces: Workspace[]; onDe
   )
 }
 
-const MainContent: React.FC<MainContentProps> = ({ workspaces, onWorkspaceDeleted }) => {
+const MainContent: React.FC<MainContentProps> = ({ workspaces: initialWorkspaces, onWorkspaceDeleted }) => {
   const [searchTerm, setSearchTerm] = useState<string>("")
+  // Create local state to manage workspaces
+  const [workspaces, setWorkspaces] = useState<Workspace[]>(initialWorkspaces)
+
+  // Update local state when props change
+  useEffect(() => {
+    setWorkspaces(initialWorkspaces)
+  }, [initialWorkspaces])
 
   // Log workspaces to help with debugging
   useEffect(() => {
@@ -65,6 +72,10 @@ const MainContent: React.FC<MainContentProps> = ({ workspaces, onWorkspaceDelete
 
   // Handle workspace deletion
   const handleWorkspaceDelete = (workspaceId: number) => {
+    // Update local state immediately to reflect the deletion in UI
+    setWorkspaces((prevWorkspaces) => prevWorkspaces.filter((workspace) => workspace.id !== workspaceId))
+
+    // Also notify parent component about the deletion
     onWorkspaceDeleted(workspaceId)
   }
 

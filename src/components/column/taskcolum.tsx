@@ -1,9 +1,10 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import TaskCard from "@/components/card/taskcard/index"
 import AddTaskModal from "@/components/modal/addtaskmodal"
+import { MoreVertical, Trash2 } from "lucide-react"
 
 interface Task {
   id: string
@@ -26,6 +27,8 @@ interface TaskColumnProps {
   onAddTask: (task: Task) => void
   onUpdateTask: (taskId: string, updatedTask: Partial<Task>) => void
   onRemoveTask: (taskId: string) => void
+  onDeleteColumn?: (columnTitle: string) => void
+  isCustomColumn?: boolean
 }
 
 const TaskColumn: React.FC<TaskColumnProps> = ({
@@ -36,6 +39,8 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
   onAddTask,
   onUpdateTask,
   onRemoveTask,
+  onDeleteColumn,
+  isCustomColumn = false,
 }) => {
   const [modalOpen, setModalOpen] = useState(false)
   const [editModalOpen, setEditModalOpen] = useState(false)
@@ -47,6 +52,25 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
     attachments: [] as string[],
     comment: "",
   })
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false)
+      }
+    }
+
+    if (menuOpen) {
+      document.addEventListener("mousedown", handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [menuOpen])
 
   // handle Open Modal for creating a new task
   const handleOpenCreateModal = () => {
@@ -157,17 +181,62 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
     }
   }
 
+  // Handle column deletion
+  const handleDeleteColumn = () => {
+    const isDefaultColumn = ["To Do", "Done", "On Progress", "In Review"].includes(title)
+
+    let confirmMessage = `Are you sure you want to delete the "${title}" column? All tasks in this column will be deleted.`
+
+    if (isDefaultColumn) {
+      confirmMessage = `Warning: "${title}" is a default column. Deleting it may affect the application's functionality. Are you sure you want to proceed?`
+    }
+
+    if (window.confirm(confirmMessage)) {
+      if (onDeleteColumn) {
+        onDeleteColumn(title)
+      }
+      setMenuOpen(false)
+    }
+  }
+
+  // Add this function to prevent clicks inside the menu from bubbling up
+  const handleMenuClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+  }
+
   return (
     <div className="flex-1 min-w-[250px]">
       <div className="flex items-center mb-4">
         <div className={`w-4 h-4 rounded-full ${color} mr-2`}></div>
         <h2 className="font-medium">{title}</h2>
         <span className={`ml-2 text-xs px-2 py-0.5 rounded-full ${color} text-white`}>{count}</span>
-        <button className="ml-auto text-gray-500">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-          </svg>
-        </button>
+        <div className="ml-auto relative" ref={menuRef}>
+          <button
+            className="text-gray-500 hover:text-gray-700 focus:outline-none"
+            onClick={(e) => {
+              e.stopPropagation()
+              setMenuOpen(!menuOpen)
+            }}
+            aria-label="Column options"
+          >
+            <MoreVertical className="h-5 w-5" />
+          </button>
+
+          {menuOpen && (
+            <div
+              className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 py-1 border border-gray-200"
+              onClick={handleMenuClick}
+            >
+              <button
+                onClick={handleDeleteColumn}
+                className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete Column
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="bg-white bg-opacity-30 p-3 rounded-lg">

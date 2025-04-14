@@ -153,7 +153,48 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
       localStorage.setItem(`custom_columns_${params.id}`, JSON.stringify(newColumns))
 
       closeAddColumnModal()
+
+      // Show success message
+      setStatusMessage({
+        type: "success",
+        message: "Column added successfully",
+      })
+
+      // Clear message after 3 seconds
+      setTimeout(() => {
+        setStatusMessage(null)
+      }, 3000)
     }
+  }
+
+  // Handle column deletion
+  const handleDeleteColumn = (columnTitle: string) => {
+    // Create column key from title
+    const columnKey = columnTitle.toLowerCase().replace(/\s+/g, "_")
+
+    // Remove column from customColumns
+    const updatedColumns = customColumns.filter((col) => col !== columnTitle)
+    setCustomColumns(updatedColumns)
+
+    // Remove column and its tasks from tasks object
+    const updatedTasks = { ...tasks }
+    delete updatedTasks[columnKey]
+    setTasks(updatedTasks)
+
+    // Save to localStorage
+    localStorage.setItem(`tasks_${params.id}`, JSON.stringify(updatedTasks))
+    localStorage.setItem(`custom_columns_${params.id}`, JSON.stringify(updatedColumns))
+
+    // Show success message
+    setStatusMessage({
+      type: "success",
+      message: `Column "${columnTitle}" deleted successfully`,
+    })
+
+    // Clear message after 3 seconds
+    setTimeout(() => {
+      setStatusMessage(null)
+    }, 3000)
   }
 
   const fetchWorkspaceFromAPI = async (workspaceId: number) => {
@@ -554,6 +595,8 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
               onAddTask={handleAddTask}
               onUpdateTask={handleUpdateTask}
               onRemoveTask={handleRemoveTask}
+              onDeleteColumn={handleDeleteColumn}
+              isCustomColumn={false}
             />
 
             <TaskColumn
@@ -564,6 +607,8 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
               onAddTask={handleAddTask}
               onUpdateTask={handleUpdateTask}
               onRemoveTask={handleRemoveTask}
+              onDeleteColumn={handleDeleteColumn}
+              isCustomColumn={false}
             />
 
             <TaskColumn
@@ -574,6 +619,8 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
               onAddTask={handleAddTask}
               onUpdateTask={handleUpdateTask}
               onRemoveTask={handleRemoveTask}
+              onDeleteColumn={handleDeleteColumn}
+              isCustomColumn={false}
             />
 
             <TaskColumn
@@ -584,6 +631,8 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
               onAddTask={handleAddTask}
               onUpdateTask={handleUpdateTask}
               onRemoveTask={handleRemoveTask}
+              onDeleteColumn={handleDeleteColumn}
+              isCustomColumn={false}
             />
 
             {/* Render custom columns */}
@@ -599,6 +648,8 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
                   onAddTask={handleAddTask}
                   onUpdateTask={handleUpdateTask}
                   onRemoveTask={handleRemoveTask}
+                  onDeleteColumn={handleDeleteColumn}
+                  isCustomColumn={true}
                 />
               )
             })}

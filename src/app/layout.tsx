@@ -14,6 +14,8 @@ const poppins = Poppins({
 
 export const metadata: Metadata = {
   title: "Kelar-In",
+  description: "Kelar-In is a task management application that helps you organize your tasks and projects efficiently.",
+  icons: "/LogoIcon.svg"
 };
 
 export default function RootLayout({
