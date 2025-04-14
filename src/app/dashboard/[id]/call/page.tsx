@@ -1,22 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { FaThLarge, FaPhone, FaUsers, FaCog } from "react-icons/fa";
-import { FiSend } from "react-icons/fi";
-import WorkspaceSidebar from "../../partials/workspaceside";
-import { MdNotificationsActive } from "react-icons/md";
 import InviteModal from "@/components/modal/invitemodal";
-import Input from "@/components/input/index";
-import Image from "next/image";
-import Notification from '@/assets/icon/Notification.png'
-import EditIcon from '@/assets/icon/EditIcon.png'
+
 
 const CallContent = () => {
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
 
-  const OpenInviteModal = () => {
-    setIsInviteModalOpen(true);
-  };
   const CloseInviteModal = () => {
     setIsInviteModalOpen(false);
   };

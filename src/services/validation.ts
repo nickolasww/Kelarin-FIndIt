@@ -68,7 +68,6 @@ export function updateLocalWorkspace(workspace: any) {
   if (savedWorkspaces) {
     try {
       workspaces = JSON.parse(savedWorkspaces)
-      // Check if workspace already exists in the array
       const existingIndex = workspaces.findIndex((w: any) => w.id === workspace.id)
       if (existingIndex >= 0) {
         workspaces[existingIndex] = workspace

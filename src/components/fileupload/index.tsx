@@ -9,7 +9,6 @@ interface FileUploadProps {
 
 const FileUpload: React.FC<FileUploadProps> = ({
   id = 'file-upload',
-  label = 'Upload File',
   acceptedTypes = 'image/jpeg, image/png',
   onFileUploaded,
 }) => {

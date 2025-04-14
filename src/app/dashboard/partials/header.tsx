@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react'
-import { useState } from 'react';
 import Image from "next/image";
 import StreakIcon from "@/assets/icon/StreakIcon.svg";
 
@@ -14,7 +13,7 @@ const Header: React.FC<HeaderProps> = ({ OpenInviteModal, OpenStreakModal }) => 
   return (
     <div className='relative'>
       <header className="py-3 px-4 sm:px-6 flex items-center absolute top-2 right-0 "> 
-        <div className="flex items-center space-x-4 sm:space-x-9"> {/* Responsive spacing */}
+        <div className="flex items-center space-x-4 sm:space-x-9"> 
           <button
             className="bg-purple-600 text-white px-3 py-2 sm:px-4 rounded-sm flex items-center text-sm sm:text-base" 
             onClick={OpenInviteModal}

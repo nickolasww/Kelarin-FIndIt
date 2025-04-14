@@ -32,11 +32,10 @@ const TaskCard: React.FC<TaskCardProps> = ({
       case "review":
         return "bg-blue-400"
       default:
-        return "bg-purple-400" // Default color for custom columns
+        return "bg-purple-400" 
     }
   }
 
-  // Define tag background color
   const getTagBackground = () => {
     switch (tagColor) {
       case "purple":
