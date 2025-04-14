@@ -1,6 +1,3 @@
-// services/workspace.ts
-// This file contains workspace-related API calls
-
 export interface Workspace {
   id: number
   name: string

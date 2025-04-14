@@ -57,3 +57,24 @@ export async function loginUser(email: string, password: string) {
     localStorage.removeItem("token")
   }
   
+  export const getAuthToken = async () => {
+    return  localStorage.getItem("token")
+  }
+  
+  export const authenticatedFetch = async (url: string, options: RequestInit = {}) => {
+    const token = await getAuthToken()
+  
+    const headers = {
+      ...options.headers,
+      Authorization: token ? `Bearer ${token}` : "",
+      "Content-Type": "application/json", // Assuming JSON content type
+    }
+  
+    const updatedOptions: RequestInit = {
+      ...options,
+      headers,
+    }
+  
+    return fetch(url, updatedOptions)
+  }
+  

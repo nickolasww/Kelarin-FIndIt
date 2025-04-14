@@ -1,3 +1,5 @@
+"use client"
+
 import type React from "react"
 
 interface TaskCardProps {
@@ -7,9 +9,18 @@ interface TaskCardProps {
   commentCount: number
   attachmentCount: number
   status: "todo" | "done" | "progress" | "review"
+  onclick?: () => void
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ title, tag, tagColor, commentCount, attachmentCount, status }) => {
+const TaskCard: React.FC<TaskCardProps> = ({
+  title,
+  tag,
+  tagColor,
+  commentCount,
+  attachmentCount,
+  status,
+  onclick,
+}) => {
   const getStatusColor = () => {
     switch (status) {
       case "todo":
@@ -42,7 +53,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ title, tag, tagColor, commentCount,
   }
 
   return (
-    <div className="bg-white rounded-lg p-3 mb-3 shadow-sm">
+    <div className="bg-white rounded-lg p-3 mb-3 shadow-sm cursor-pointer" onClick={onclick}>
       <div className="flex justify-between items-start mb-2">
         <h3 className="font-medium text-sm">{title}</h3>
         <div className={`w-4 h-4 rounded-full ${getStatusColor()}`}></div>
@@ -93,4 +104,3 @@ const TaskCard: React.FC<TaskCardProps> = ({ title, tag, tagColor, commentCount,
 }
 
 export default TaskCard
-
