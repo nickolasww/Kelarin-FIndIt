@@ -1,6 +1,6 @@
 "use client"
 import { useRouter } from "next/navigation"
-import { useState, useRef, useEffect } from "react"
+import { useEffect } from "react"
 import type { Workspace } from "@/services/workspace"
 
 interface WorkspaceCardProps {
@@ -8,9 +8,8 @@ interface WorkspaceCardProps {
   onDelete: (workspaceId: number) => void
 }
 
-export default function WorkspaceCard({ workspace, onDelete }: WorkspaceCardProps) {
+export default function WorkspaceCard({ workspace }: WorkspaceCardProps) {
   const router = useRouter()
-  // State isDeleting dan setIsDeleting dihapus karena tidak digunakan
 
   const workspaceName = workspace.title || workspace.name || "Unnamed Workspace"
 
@@ -22,12 +21,12 @@ export default function WorkspaceCard({ workspace, onDelete }: WorkspaceCardProp
 
   const handleClick = () => {
     const savedWorkspaces = localStorage.getItem("workspaces")
-    let workspaces = []
+    let workspaces: Workspace[] = []
 
     if (savedWorkspaces) {
       try {
         workspaces = JSON.parse(savedWorkspaces)
-        const existingIndex = workspaces.findIndex((w: any) => w.id === workspace.id)
+        const existingIndex = workspaces.findIndex((w: Workspace) => w.id === workspace.id)
         if (existingIndex >= 0) {
           workspaces[existingIndex] = workspace
         } else {

@@ -48,7 +48,7 @@ interface AddTableData {
   image: File | null
 }
 
-const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDeleteWorkspace }) => {
+const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params }) => {
   const router = useRouter()
   const [workspace, setWorkspace] = useState<Workspace | null>(null)
   const [tasks, setTasks] = useState<Record<string, Task[]>>({
