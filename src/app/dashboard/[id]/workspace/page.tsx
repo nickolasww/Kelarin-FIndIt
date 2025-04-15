@@ -1,6 +1,4 @@
 "use client"
-
-import type React from "react"
 import { useState, useEffect } from "react"
 import TaskColumn from "@/components/column/taskcolum"
 import { useRouter } from "next/navigation"
@@ -49,7 +47,7 @@ interface AddTableData {
   image: File | null
 }
 
-const WorkspaceDetailPageContent: React.FC<WorkspaceDetailPageProps> = ({ params, onDeleteWorkspace }) => {
+export default function WorkspaceDetailPage({ params, onDeleteWorkspace }: WorkspaceDetailPageProps) {
   const router = useRouter()
   const [workspace, setWorkspace] = useState<Workspace | null>(null)
   const [tasks, setTasks] = useState<Record<string, Task[]>>({
@@ -692,9 +690,4 @@ const WorkspaceDetailPageContent: React.FC<WorkspaceDetailPageProps> = ({ params
       )}
     </div>
   )
-}
-
-// Ekspor default yang sesuai dengan konvensi Next.js App Router
-export default function WorkspaceDetailPage({ params, onDeleteWorkspace }: WorkspaceDetailPageProps) {
-  return <WorkspaceDetailPageContent params={params} onDeleteWorkspace={onDeleteWorkspace} />
 }
