@@ -1,4 +1,5 @@
 "use client"
+
 import { useState, useEffect } from "react"
 import TaskColumn from "@/components/column/taskcolum"
 import { useRouter } from "next/navigation"
@@ -10,11 +11,16 @@ import NotificationModal from "@/components/modal/notificationmodal"
 import AddTable from "@/components/column/addtable"
 import { getAuthToken } from "@/services/validation"
 
-interface WorkspaceDetailPageProps {
+// Definir los tipos para los parámetros que recibe la página
+type PageProps = {
   params: {
     id: string
   }
-  searchParams?: Record<string, string | string[] | undefined>
+}
+
+// Definir los tipos para los props del componente interno
+interface WorkspaceDetailProps {
+  id: string
   onDeleteWorkspace?: (workspaceId: number) => void
 }
 
@@ -47,7 +53,8 @@ interface AddTableData {
   image: File | null
 }
 
-export default function WorkspaceDetailPage({ params, onDeleteWorkspace }: WorkspaceDetailPageProps) {
+// Componente interno que maneja la lógica y el estado
+function WorkspaceDetailContent({ id, onDeleteWorkspace }: WorkspaceDetailProps) {
   const router = useRouter()
   const [workspace, setWorkspace] = useState<Workspace | null>(null)
   const [tasks, setTasks] = useState<Record<string, Task[]>>({
@@ -125,8 +132,8 @@ export default function WorkspaceDetailPage({ params, onDeleteWorkspace }: Works
       setTasks(updatedTasks)
 
       // Save to localStorage
-      localStorage.setItem(`tasks_${params.id}`, JSON.stringify(updatedTasks))
-      localStorage.setItem(`custom_columns_${params.id}`, JSON.stringify(newColumns))
+      localStorage.setItem(`tasks_${id}`, JSON.stringify(updatedTasks))
+      localStorage.setItem(`custom_columns_${id}`, JSON.stringify(newColumns))
 
       closeAddColumnModal()
 
@@ -152,8 +159,8 @@ export default function WorkspaceDetailPage({ params, onDeleteWorkspace }: Works
     delete updatedTasks[columnKey]
     setTasks(updatedTasks)
 
-    localStorage.setItem(`tasks_${params.id}`, JSON.stringify(updatedTasks))
-    localStorage.setItem(`custom_columns_${params.id}`, JSON.stringify(updatedColumns))
+    localStorage.setItem(`tasks_${id}`, JSON.stringify(updatedTasks))
+    localStorage.setItem(`custom_columns_${id}`, JSON.stringify(updatedColumns))
 
     setStatusMessage({
       type: "success",
@@ -231,10 +238,10 @@ export default function WorkspaceDetailPage({ params, onDeleteWorkspace }: Works
   }
 
   useEffect(() => {
-    const workspaceId = Number.parseInt(params.id, 10)
+    const workspaceId = Number.parseInt(id, 10)
 
     if (isNaN(workspaceId)) {
-      console.error("Invalid workspace ID:", params.id)
+      console.error("Invalid workspace ID:", id)
       setStatusMessage({ type: "error", message: "Invalid workspace ID" })
       return
     }
@@ -298,10 +305,10 @@ export default function WorkspaceDetailPage({ params, onDeleteWorkspace }: Works
     }
 
     loadWorkspace()
-  }, [params.id, router, retryCount])
+  }, [id, router, retryCount])
 
   const loadTasks = () => {
-    const savedTasks = localStorage.getItem(`tasks_${params.id}`)
+    const savedTasks = localStorage.getItem(`tasks_${id}`)
     if (savedTasks) {
       try {
         setTasks(JSON.parse(savedTasks))
@@ -313,7 +320,7 @@ export default function WorkspaceDetailPage({ params, onDeleteWorkspace }: Works
       initializeEmptyTasks()
     }
 
-    const savedCustomColumns = localStorage.getItem(`custom_columns_${params.id}`)
+    const savedCustomColumns = localStorage.getItem(`custom_columns_${id}`)
     if (savedCustomColumns) {
       try {
         setCustomColumns(JSON.parse(savedCustomColumns))
@@ -332,7 +339,7 @@ export default function WorkspaceDetailPage({ params, onDeleteWorkspace }: Works
     }
 
     setTasks(emptyTasks)
-    localStorage.setItem(`tasks_${params.id}`, JSON.stringify(emptyTasks))
+    localStorage.setItem(`tasks_${id}`, JSON.stringify(emptyTasks))
   }
 
   const handleAddTask = (newTask: Task) => {
@@ -344,7 +351,7 @@ export default function WorkspaceDetailPage({ params, onDeleteWorkspace }: Works
 
     updatedTasks[newTask.status] = [...updatedTasks[newTask.status], newTask]
     setTasks(updatedTasks)
-    localStorage.setItem(`tasks_${params.id}`, JSON.stringify(updatedTasks))
+    localStorage.setItem(`tasks_${id}`, JSON.stringify(updatedTasks))
   }
 
   const handleUpdateTask = (taskId: string, updatedTask: Partial<Task>) => {
@@ -366,7 +373,7 @@ export default function WorkspaceDetailPage({ params, onDeleteWorkspace }: Works
       )
 
       setTasks(updatedTasks)
-      localStorage.setItem(`tasks_${params.id}`, JSON.stringify(updatedTasks))
+      localStorage.setItem(`tasks_${id}`, JSON.stringify(updatedTasks))
     }
   }
 
@@ -383,7 +390,7 @@ export default function WorkspaceDetailPage({ params, onDeleteWorkspace }: Works
     }
 
     setTasks(updatedTasks)
-    localStorage.setItem(`tasks_${params.id}`, JSON.stringify(updatedTasks))
+    localStorage.setItem(`tasks_${id}`, JSON.stringify(updatedTasks))
 
     setStatusMessage({
       type: "success",
@@ -395,7 +402,7 @@ export default function WorkspaceDetailPage({ params, onDeleteWorkspace }: Works
     }, 3000)
   }
 
-  // Fungsi untuk menghapus workspace
+  // Función para eliminar workspace
   const handleDeleteWorkspaceClick = () => {
     if (workspace && onDeleteWorkspace) {
       console.log("Requesting deletion of workspace ID:", workspace.id)
@@ -690,4 +697,21 @@ export default function WorkspaceDetailPage({ params, onDeleteWorkspace }: Works
       )}
     </div>
   )
+}
+
+// Componente de página que sigue la convención de Next.js App Router
+export default function Page({ params }: PageProps) {
+  // Este es el componente que Next.js reconocerá como página
+  return <WorkspaceDetailContent id={params.id} />
+}
+
+// Función para usar desde otros componentes (como dashboard-page.tsx)
+export function WorkspaceDetailPage({
+  params,
+  onDeleteWorkspace,
+}: {
+  params: { id: string }
+  onDeleteWorkspace?: (workspaceId: number) => void
+}) {
+  return <WorkspaceDetailContent id={params.id} onDeleteWorkspace={onDeleteWorkspace} />
 }

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import WorkspaceSidebar from "@/app/dashboard/partials/workspaceside"
 import Chat from "@/app/dashboard/[id]/chat/page"
 import InviteModal from "@/components/modal/invitemodal"
-import WorkspaceDetailPage from "@/app/dashboard/[id]/workspace/page"
+import { WorkspaceDetailPage } from "@/app/dashboard/[id]/workspace/page"
 import DeleteModal from "@/components/modal/deletemodal"
 import Header from "@/app/dashboard/partials/header"
 import StreakModal from "@/components/modal/streakmodal"
@@ -183,7 +183,7 @@ const DashboardPage = () => {
           })
         } else if (response.status === 404) {
           // Jika workspace tidak ditemukan di server, tetap hapus dari localStorage
-          console.log("Workspace not found on server")
+          console.log("Workspace not found on server, removing from local storage")
           removeWorkspaceFromLocalStorage(workspaceId)
           setStatusMessage({
             type: "success",
