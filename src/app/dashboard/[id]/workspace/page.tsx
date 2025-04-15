@@ -34,7 +34,7 @@ interface Task {
   tagColor: string
   commentCount: number
   attachmentCount: number
-  status: string 
+  status: string
   deskripsi?: string
   attachments?: string[]
   comment?: string
@@ -48,12 +48,6 @@ interface AddTableData {
   image: File | null
 }
 
-interface LinkItem {
-  title: string
-  url: string
-  selected: boolean
-}
-
 const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDeleteWorkspace }) => {
   const router = useRouter()
   const [workspace, setWorkspace] = useState<Workspace | null>(null)
@@ -65,8 +59,6 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
   })
   const [isTableModalOpen, setIsTableModalOpen] = useState(false)
   const [isNotificationOpen, setIsNotificationOpen] = useState(false)
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false)
   const [statusMessage, setStatusMessage] = useState<{ type: "success" | "error"; message: string } | null>(null)
   const [isHeaderExpanded, setIsHeaderExpanded] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
@@ -106,24 +98,9 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
     setIsNotificationOpen(false)
   }
 
-  const openDeleteModal = () => {
-    setIsDeleteModalOpen(true)
-    setStatusMessage(null)
-  }
-  const closeDeleteModal = () => {
-    setIsDeleteModalOpen(false)
-  }
-
   const handleCreate = (formData: AddTableData) => {
     console.log("Data Workspace yang Dibuat:", formData)
     setIsTableModalOpen(false)
-  }
-
-  const handleDeleteClick = () => {
-    console.log("Delete button clicked for workspace:", workspace?.id)
-    if (workspace && onDeleteWorkspace) {
-      onDeleteWorkspace(workspace.id)
-    }
   }
 
   const openAddColumnModal = () => {
@@ -271,8 +248,8 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
 
       if (savedWorkspaces) {
         try {
-          const parsedWorkspaces = JSON.parse(savedWorkspaces)
-          foundWorkspace = parsedWorkspaces.find((w: any) => w.id === workspaceId)
+          const parsedWorkspaces = JSON.parse(savedWorkspaces) as Workspace[]
+          foundWorkspace = parsedWorkspaces.find((w: Workspace) => w.id === workspaceId)
 
           if (foundWorkspace) {
             console.log("Found workspace in localStorage:", foundWorkspace)
@@ -331,10 +308,10 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
         setTasks(JSON.parse(savedTasks))
       } catch (error) {
         console.error("Error parsing tasks from localStorage:", error)
-        initializeEmptyTasks() 
+        initializeEmptyTasks()
       }
     } else {
-      initializeEmptyTasks() 
+      initializeEmptyTasks()
     }
 
     const savedCustomColumns = localStorage.getItem(`custom_columns_${params.id}`)
@@ -378,7 +355,7 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
 
     let statusKey: string | null = null
     for (const key in tasks) {
-      if (tasks[key].some((task) => task.id === taskId)) {
+      if (Object.prototype.hasOwnProperty.call(tasks, key) && tasks[key].some((task) => task.id === taskId)) {
         statusKey = key
         break
       }

@@ -12,6 +12,11 @@ import { useRouter, useParams } from "next/navigation"
 import { getAuthToken, isAuthenticated } from "@/services/validation"
 import Call from "@/app/dashboard/[id]/call/page"
 
+interface WorkspaceData {
+  id: number
+  name?: string
+}
+
 const DashboardPage = () => {
   const router = useRouter()
   const params = useParams()
@@ -37,8 +42,8 @@ const DashboardPage = () => {
         const savedWorkspaces = localStorage.getItem("workspaces")
         if (savedWorkspaces) {
           try {
-            const parsedWorkspaces = JSON.parse(savedWorkspaces)
-            const foundWorkspace = parsedWorkspaces.find((w: any) => w.id === numericId)
+            const parsedWorkspaces = JSON.parse(savedWorkspaces) as WorkspaceData[]
+            const foundWorkspace = parsedWorkspaces.find((w: WorkspaceData) => w.id === numericId)
 
             if (!foundWorkspace) {
               console.log("Workspace not found in localStorage, checking if it's a new workspace")
@@ -46,7 +51,7 @@ const DashboardPage = () => {
               if (tempWorkspace) {
                 console.log("Found temporary workspace data in sessionStorage")
                 try {
-                  const parsedTempWorkspace = JSON.parse(tempWorkspace)
+                  const parsedTempWorkspace = JSON.parse(tempWorkspace) as WorkspaceData
                   parsedWorkspaces.push(parsedTempWorkspace)
                   localStorage.setItem("workspaces", JSON.stringify(parsedWorkspaces))
                   sessionStorage.removeItem(`temp_workspace_${numericId}`)
@@ -155,7 +160,6 @@ const DashboardPage = () => {
             type: "error",
             message: "Your session has expired. Please log in again.",
           })
-
         } else {
           throw new Error(`Failed to delete workspace: ${response.status} - ${errorText}`)
         }
@@ -168,8 +172,8 @@ const DashboardPage = () => {
       const savedWorkspaces = localStorage.getItem("workspaces")
       if (savedWorkspaces) {
         try {
-          const parsedWorkspaces = JSON.parse(savedWorkspaces)
-          const updatedWorkspaces = parsedWorkspaces.filter((w: any) => w.id !== workspaceId)
+          const parsedWorkspaces = JSON.parse(savedWorkspaces) as WorkspaceData[]
+          const updatedWorkspaces = parsedWorkspaces.filter((w: WorkspaceData) => w.id !== workspaceId)
           localStorage.setItem("workspaces", JSON.stringify(updatedWorkspaces))
           console.log("Updated localStorage after deletion")
         } catch (error) {
@@ -199,10 +203,10 @@ const DashboardPage = () => {
       contentToRender = <Workspace params={{ id: currentPageId || "1" }} onDeleteWorkspace={openDeleteModal} />
       break
     case "chat":
-      contentToRender = <Call/>
+      contentToRender = <Call />
       break
     case "call":
-      contentToRender =  <Chat />
+      contentToRender = <Chat />
       break
     default:
       contentToRender = <Workspace params={{ id: currentPageId || "1" }} onDeleteWorkspace={openDeleteModal} />
@@ -228,7 +232,7 @@ const DashboardPage = () => {
 
         <InviteModal isOpen={isInviteModalOpen} onClose={closeInviteModal} onInvite={handleInviteFriend} />
 
-        <StreakModal isOpen={isStreakModalOpen} onClose={closeStreakModal}/>
+        <StreakModal isOpen={isStreakModalOpen} onClose={closeStreakModal} />
       </div>
 
       {/* Status message display */}

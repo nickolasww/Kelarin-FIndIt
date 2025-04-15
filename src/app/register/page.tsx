@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react"; 
 import Input from "@/components/input";
 import Button from "@/components/button";
 import Logo from "@/assets/icon/Logo.svg";
@@ -62,7 +62,7 @@ export default function Register() {
           <div className="relative m-2 bg-gradient-to-br from-purple-100 to-purple-600 rounded-3xl p-8 shadow-2xl flex flex-col items-start justify-center">
             <div className="absolute top-8 left-8 flex items-center">
               <a href="/home">
-                <Image src={Logo} alt="Logo Kelarin" className="w-12 h-12 mr-2 cursor-pointer" />
+                <Image src={Logo || "/placeholder.svg"} alt="Logo Kelarin" className="w-12 h-12 mr-2 cursor-pointer" />
               </a>
               <h1 className="text-2xl font-bold text-white">Kelarin</h1>
             </div>
@@ -83,6 +83,13 @@ export default function Register() {
         <div className="w-full md:w-[70%] mx-auto">
           <h1 className="text-3xl mb-2">Get Started</h1>
           <p className="text-gray-500 mb-6 text-lg">Create your account now</p>
+
+          {/* Menampilkan pesan error jika ada */}
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+              <span className="block sm:inline">{error}</span>
+            </div>
+          )}
 
           <div className="pt-6 md:pt-10 ml-5">
             <Input

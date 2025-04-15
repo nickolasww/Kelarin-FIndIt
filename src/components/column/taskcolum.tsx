@@ -40,7 +40,6 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
   onUpdateTask,
   onRemoveTask,
   onDeleteColumn,
-  isCustomColumn = false,
 }) => {
   const [modalOpen, setModalOpen] = useState(false)
   const [editModalOpen, setEditModalOpen] = useState(false)

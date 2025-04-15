@@ -19,7 +19,7 @@ const AddTableModal: React.FC<WorkspaceModalProps> = ({ isOpen, onSubmit, onClos
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [inviteEmail, setInviteEmail] = useState('');
-  const [usage, setUsage] = useState<string | null>(null);
+  const [usage] = useState<string | null>(null);
   const [image, setImage] = useState<File | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
