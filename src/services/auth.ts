@@ -18,10 +18,7 @@ export async function loginUser(email: string, password: string): Promise<LoginR
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        email,
-        password,
-      }),
+      body: JSON.stringify({ email, password }),
     });
 
     if (!response.ok) {
@@ -31,7 +28,7 @@ export async function loginUser(email: string, password: string): Promise<LoginR
 
     const data: LoginResponse = await response.json();
     return data;
-  } catch (err: unknown) {  // Tipekan 'err' sebagai 'unknown'
+  } catch (err: unknown) {  // Changed from 'any' to 'unknown'
     if (err instanceof Error) {
       console.error("Login failed:", err);
       throw new Error(err.message || "An error occurred during login. Please try again.");
@@ -49,11 +46,7 @@ export async function registerUser(fullName: string, email: string, password: st
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        fullName,
-        email,
-        password,
-      }),
+      body: JSON.stringify({ fullName, email, password }),
     });
 
     if (!response.ok) {
@@ -63,7 +56,7 @@ export async function registerUser(fullName: string, email: string, password: st
 
     const data: RegisterResponse = await response.json();
     return data;
-  } catch (err: unknown) {  // Tipekan 'err' sebagai 'unknown'
+  } catch (err: unknown) {  // Changed from 'any' to 'unknown'
     if (err instanceof Error) {
       console.error("Registration failed:", err);
       throw new Error(err.message || "An error occurred during registration. Please try again.");
