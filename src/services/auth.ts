@@ -13,46 +13,54 @@ interface RegisterResponse {
 }
 
 export async function loginUser(email: string, password: string): Promise<LoginResponse> {
-  const response = await fetch("https://kelarin.bccdev.id/api/login", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      email,
-      password,
-    }),
-  });
+  try {
+    const response = await fetch("https://kelarin.bccdev.id/api/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+    });
 
-  const data: LoginResponse = await response.json();
+    if (!response.ok) {
+      const data: LoginResponse = await response.json();
+      throw new Error(data.message || "Login failed");
+    }
 
-  if (!response.ok) {
-    throw new Error(data.message || "Login failed");
+    const data: LoginResponse = await response.json();
+    return data;
+  } catch (err) {
+    throw new Error("An error occurred during login. Please try again.");
   }
-
-  return data;
 }
 
 export async function registerUser(fullName: string, email: string, password: string): Promise<RegisterResponse> {
-  const response = await fetch("https://kelarin.bccdev.id/api/register", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      fullName,
-      email,
-      password,
-    }),
-  });
+  try {
+    const response = await fetch("https://kelarin.bccdev.id/api/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        fullName,
+        email,
+        password,
+      }),
+    });
 
-  const data: RegisterResponse = await response.json();
+    if (!response.ok) {
+      const data: RegisterResponse = await response.json();
+      throw new Error(data.message || "Registration failed");
+    }
 
-  if (!response.ok) {
-    throw new Error(data.message || "Registration failed");
+    const data: RegisterResponse = await response.json();
+    return data;
+  } catch (err) {
+    throw new Error("An error occurred during registration. Please try again.");
   }
-
-  return data;
 }
 
 export function storeUserSession(data: LoginResponse) {

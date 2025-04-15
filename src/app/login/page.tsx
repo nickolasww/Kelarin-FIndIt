@@ -16,8 +16,9 @@ export default function Login() {
   const router = useRouter();
 
   const handleLogin = async () => {
-    setError("");
+    setError(""); // Reset error message before attempting login
 
+    // Validate inputs
     if (!email || !password) {
       setError("Email and password are required!");
       return;
@@ -35,12 +36,10 @@ export default function Login() {
 
     try {
       const userData = await loginUser(trimmedEmail, trimmedPassword);
-
-      storeUserSession(userData);
-
-      router.push("/dashboard");
+      storeUserSession(userData); // Store user session in localStorage
+      router.push("/dashboard"); // Redirect to dashboard after successful login
     } catch (err) {
-      console.error(err);
+      console.error("Login failed:", err);
       setError(err instanceof Error ? err.message : "An error occurred during login. Please try again.");
     } finally {
       setIsLoading(false);
