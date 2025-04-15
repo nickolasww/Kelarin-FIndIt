@@ -10,10 +10,7 @@ interface WorkspaceCardProps {
 
 export default function WorkspaceCard({ workspace, onDelete }: WorkspaceCardProps) {
   const router = useRouter()
-  const [showContextMenu, setShowContextMenu] = useState(false)
-  const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 })
-  const [isDeleting, setIsDeleting] = useState(false)
-  const contextMenuRef = useRef<HTMLDivElement>(null)
+  // State isDeleting dan setIsDeleting dihapus karena tidak digunakan
 
   const workspaceName = workspace.title || workspace.name || "Unnamed Workspace"
 
@@ -24,31 +21,29 @@ export default function WorkspaceCard({ workspace, onDelete }: WorkspaceCardProp
   const firstChar = workspaceName.charAt(0) || "U"
 
   const handleClick = () => {
-    if (!isDeleting) {
-      const savedWorkspaces = localStorage.getItem("workspaces")
-      let workspaces = []
+    const savedWorkspaces = localStorage.getItem("workspaces")
+    let workspaces = []
 
-      if (savedWorkspaces) {
-        try {
-          workspaces = JSON.parse(savedWorkspaces)
-          const existingIndex = workspaces.findIndex((w: any) => w.id === workspace.id)
-          if (existingIndex >= 0) {
-            workspaces[existingIndex] = workspace
-          } else {
-            workspaces.push(workspace)
-          }
-        } catch (error) {
-          console.error("Error parsing workspaces from localStorage:", error)
-          workspaces = [workspace]
+    if (savedWorkspaces) {
+      try {
+        workspaces = JSON.parse(savedWorkspaces)
+        const existingIndex = workspaces.findIndex((w: any) => w.id === workspace.id)
+        if (existingIndex >= 0) {
+          workspaces[existingIndex] = workspace
+        } else {
+          workspaces.push(workspace)
         }
-      } else {
+      } catch (error) {
+        console.error("Error parsing workspaces from localStorage:", error)
         workspaces = [workspace]
       }
-      localStorage.setItem("workspaces", JSON.stringify(workspaces))
-      console.log("Saved workspace to localStorage before navigation:", workspace)
-
-      router.push(`/dashboard/${workspace.id}`)
+    } else {
+      workspaces = [workspace]
     }
+    localStorage.setItem("workspaces", JSON.stringify(workspaces))
+    console.log("Saved workspace to localStorage before navigation:", workspace)
+
+    router.push(`/dashboard/${workspace.id}`)
   }
 
   return (
