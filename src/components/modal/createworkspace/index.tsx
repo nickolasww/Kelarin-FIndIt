@@ -114,19 +114,19 @@ const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({ isOpen, onC
   };
 
   return isModalOpen ? (
-    <div className="fixed z-50 inset-0 bg-black/50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl w-full max-w-3xl p-6 sm:p-8 relative">
-        <div className="flex items-center justify-between mb-4 sm:mb-6">
+    <div className="fixed z-50 inset-0 bg-black/50 flex items-center justify-center p-4 md:p-6 lg:p-8">
+      <div className="bg-white rounded-2xl w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-3xl p-6 sm:p-8 md:p-10 lg:p-6 relative">
+        <div className="flex items-center justify-between mb-4 md:mb-6">
           <Input
             type="text"
             label=""
-            classname="text-xl font-semibold text-gray-800 focus:outline-none border-b border-black w-56"
+            classname="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 focus:outline-none border-b border-black w-40 sm:w-56 md:w-64"
             value={workspaceName}
             placeholder="Workspace Name"
             onChange={(e) => setWorkspaceName(e.target.value)}
           />
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-            <X className="h-5 w-5 sm:h-6 sm:w-6" />
+            <X className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" />
           </button>
         </div>
 
@@ -134,21 +134,21 @@ const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({ isOpen, onC
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Add Description"
-          className="border-2 border-dashed border-gray-300 rounded-xl w-full bg-gray-100 min-h-[120px] p-4 sm:p-5 focus:outline-none mb-6"
+          className="border-2 border-dashed border-gray-300 rounded-xl w-full bg-gray-100 min-h-[100px] sm:min-h-[120px] md:min-h-[150px] p-4 sm:p-5 md:p-6 focus:outline-none mb-6 md:mb-8"
         />
 
-        <div className="mb-6">
-          <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">Share this Workspace</h2>
-          <div className="flex flex-col sm:flex-row gap-3">
+        <div className="mb-6 md:mb-8">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-3 sm:mb-4">Share this Workspace</h2>
+          <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
             <input
               type="email"
               placeholder="type your friend email here"
-              className="flex-1 border border-gray-300 rounded-lg px-3 py-2 sm:px-4 sm:py-3 text-gray-500"
+              className="flex-1 border border-gray-300 rounded-lg px-3 py-2 sm:px-4 sm:py-3 md:px-5 md:py-3.5 text-gray-500 text-sm sm:text-base"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
             <button
-              className={`bg-purple-500 hover:bg-purple-600 text-white rounded-lg px-4 py-2 sm:px-6 sm:py-3 flex items-center justify-center ${
+              className={`bg-purple-500 hover:bg-purple-600 text-white rounded-lg px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-3.5 flex items-center justify-center text-sm sm:text-base ${
                 isInviting ? "opacity-70 cursor-not-allowed" : ""
               }`}
               onClick={handleInvite}
@@ -160,13 +160,13 @@ const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({ isOpen, onC
           {inviteMessage && <p className="mt-2 text-sm text-green-600">{inviteMessage}</p>}
         </div>
 
-        <div className="mb-6 sm:mb-8">
-          <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">How do you want to use this workspace?</h2>
-          <div className="flex flex-wrap gap-3 sm:gap-4">
+        <div className="mb-6 md:mb-8">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-3 sm:mb-4">How do you want to use this workspace?</h2>
+          <div className="flex flex-wrap gap-3 sm:gap-4 md:gap-5">
             {["Group Project", "Planner", "Lesson Plan"].map((type) => (
               <button
                 key={type}
-                className={`px-6 py-3 rounded-lg border-2 text-base ${
+                className={`px-4 sm:px-6 py-2 sm:py-3 rounded-lg border-2 text-sm sm:text-base ${
                   workspaceType === type
                     ? "border-purple-500 bg-purple-50 text-purple-700 font-medium"
                     : "border-gray-200 text-gray-700 hover:border-gray-300"
@@ -180,10 +180,10 @@ const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({ isOpen, onC
           </div>
         </div>
 
-        {error && <div className="mb-4 text-red-500 text-sm">{error}</div>}
+        {error && <div className="mb-4 text-red-500 text-sm sm:text-base">{error}</div>}
 
         <button
-          className={`w-full bg-purple-500 hover:bg-purple-600 text-white rounded-lg py-3 sm:py-4 text-base sm:text-lg font-medium ${
+          className={`w-full bg-purple-500 hover:bg-purple-600 text-white rounded-lg py-3 sm:py-4 md:py-4.5 text-sm sm:text-base md:text-lg font-medium ${
             isLoading || !workspaceName.trim() || !workspaceType ? "opacity-50 cursor-not-allowed" : ""
           }`}
           onClick={handleCreate}

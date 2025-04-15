@@ -147,27 +147,27 @@ const EditTaskModal: React.FC<TaskModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed z-50 inset-0 bg-black/50 flex justify-center items-center">
-      <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl">
+    <div className="fixed z-50 inset-0 bg-black/50 flex justify-center items-center p-4 md:p-6 lg:p-8">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-md sm:max-w-lg md:max-w-2xl p-6 md:p-8">
         {/* Header */}
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex justify-between items-center mb-4 md:mb-6">
           <input
             type="text"
-            className="text-xl font-semibold text-gray-800 focus:outline-none border-b border-black w-56"
+            className="text-lg md:text-xl font-semibold text-gray-800 focus:outline-none border-b border-black w-40 md:w-56"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700 focus:outline-none">
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
         {/* Description */}
-        <div className="mb-4">
+        <div className="mb-4 md:mb-6">
           <textarea
-            className="w-full p-2 border-2 border-dashed border-gray-300 rounded-md text-sm text-gray-700 focus:outline-none h-24"
+            className="w-full p-2 border-2 border-dashed border-gray-300 rounded-md text-sm text-gray-700 focus:outline-none h-20 md:h-24"
             placeholder="description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -175,15 +175,15 @@ const EditTaskModal: React.FC<TaskModalProps> = ({
         </div>
 
         {/* Attachment */}
-        <div className="mb-4">
+        <div className="mb-4 md:mb-6">
           <label htmlFor="attachment" className="block text-sm font-medium text-black mb-2">
             Attachment
           </label>
-          <div className="flex items-center">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
             <input
               type="text"
               id="attachment"
-              className="w-full p-2 border border-gray-300 rounded-md text-sm text-gray-700 focus:outline-none"
+              className="w-full sm:w-auto flex-grow p-2 border border-gray-300 rounded-md text-sm text-gray-700 focus:outline-none"
               placeholder="paste link or file here"
               value={attachmentLink}
               onChange={(e) => setAttachmentLink(e.target.value)}
@@ -192,7 +192,7 @@ const EditTaskModal: React.FC<TaskModalProps> = ({
             <button
               type="button"
               onClick={handleAddAttachment}
-              className={`ml-7 bg-purple-700 text-white font-semibold py-2 px-4 rounded focus:outline-none w-30 ${
+              className={`ml-0 sm:ml-7 bg-purple-700 text-white font-semibold py-2 px-4 rounded focus:outline-none w-full sm:w-auto ${
                 isLoading ? "opacity-70 cursor-not-allowed" : ""
               }`}
               disabled={isLoading || !attachmentLink.trim()}
@@ -202,13 +202,13 @@ const EditTaskModal: React.FC<TaskModalProps> = ({
           </div>
           {error && <p className="mt-2 text-red-500 text-sm">{error}</p>}
           {attachments.length > 0 && (
-            <div className="mt-2 grid grid-cols-3 gap-2">
+            <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-2">
               {attachments.map((link, index) => (
                 <div
                   key={index}
-                  className="border border-black rounded-sm px-4 py-2 text-sm text-black font-bold flex items-center"
+                  className="border border-black rounded-sm px-2 py-1 text-sm text-black font-bold flex items-center truncate"
                 >
-                  {link.length > 20 ? `${link.substring(0, 20)}...` : link}
+                  <span className="truncate">{link}</span>
                   <button
                     type="button"
                     onClick={() => handleRemoveAttachment(index)}
@@ -226,15 +226,15 @@ const EditTaskModal: React.FC<TaskModalProps> = ({
         </div>
 
         {/* Comment */}
-        <div className="mb-4">
+        <div className="mb-4 md:mb-6">
           <label htmlFor="comment" className="block text-sm font-medium text-black mb-2">
             Comment
           </label>
-          <div className="flex items-center">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
             <input
               type="text"
               id="comment"
-              className="w-full p-2 border border-gray-300 rounded-sm text-sm text-gray-700 focus:outline-none"
+              className="w-full sm:w-auto flex-grow p-2 border border-gray-300 rounded-sm text-sm text-gray-700 focus:outline-none"
               placeholder="type your comment here"
               value={comment}
               onChange={(e) => setComment(e.target.value)}
@@ -246,7 +246,7 @@ const EditTaskModal: React.FC<TaskModalProps> = ({
                 onUpdate(comment, attachments);
                 setComment(""); // Clear comment after posting
               }}
-              className={`ml-7 bg-purple-700 text-white font-semibold py-2 px-4 rounded focus:outline-none w-30 ${
+              className={`ml-0 sm:ml-7 bg-purple-700 text-white font-semibold py-2 px-4 rounded focus:outline-none w-full sm:w-auto ${
                 isLoading ? "opacity-70 cursor-not-allowed" : ""
               }`}
               disabled={isLoading || !comment.trim()}
@@ -257,19 +257,19 @@ const EditTaskModal: React.FC<TaskModalProps> = ({
         </div>
 
         {/* Actions */}
-        <div className="flex flex-col gap-2 mt-9">
+        <div className="flex flex-col gap-3 mt-6">
           {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-          <div className="flex justify-center gap-2">
+          <div className="flex justify-center gap-3">
             <button
               onClick={handleRemoveTask}
-              className="border border-purple-500 text-purple-500 font-semibold py-2 px-20 rounded focus:outline-none"
+              className="border border-purple-500 text-purple-500 font-semibold py-2 px-8 rounded focus:outline-none w-full sm:w-auto"
               disabled={isLoading}
             >
               {isLoading ? "Removing..." : "Remove"}
             </button>
             <button
               onClick={handleUpdateTask}
-              className={`bg-purple-700 text-white font-semibold py-2 px-20 rounded focus:outline-none ${
+              className={`bg-purple-700 text-white font-semibold py-2 px-8 rounded focus:outline-none w-full sm:w-auto ${
                 isLoading ? "opacity-70 cursor-not-allowed" : ""
               }`}
               disabled={isLoading}
