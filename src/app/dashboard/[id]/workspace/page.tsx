@@ -16,6 +16,7 @@ interface WorkspaceDetailPageProps {
   params: {
     id: string
   }
+  searchParams?: Record<string, string | string[] | undefined>
   onDeleteWorkspace?: (workspaceId: number) => void
 }
 
@@ -48,7 +49,7 @@ interface AddTableData {
   image: File | null
 }
 
-const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params }) => {
+const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDeleteWorkspace }) => {
   const router = useRouter()
   const [workspace, setWorkspace] = useState<Workspace | null>(null)
   const [tasks, setTasks] = useState<Record<string, Task[]>>({
@@ -223,7 +224,7 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params }) => 
 
       localStorage.setItem("workspaces", JSON.stringify(workspaces))
       return processedWorkspace
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error fetching workspace from API:", error)
       return null
     } finally {
@@ -396,6 +397,16 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params }) => 
     }, 3000)
   }
 
+  // Fungsi untuk menghapus workspace
+  const handleDeleteWorkspaceClick = () => {
+    if (workspace && onDeleteWorkspace) {
+      console.log("Requesting deletion of workspace ID:", workspace.id)
+      onDeleteWorkspace(workspace.id)
+    } else {
+      console.error("Cannot delete workspace: workspace is null or onDeleteWorkspace is not provided")
+    }
+  }
+
   if (!isInitialized && isLoading) {
     return <div className="flex justify-center items-center h-screen">Loading workspace...</div>
   }
@@ -515,7 +526,33 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params }) => 
                   </div>
                 ))}
 
-                <div className="mt-6 flex justify-end">
+                <div className="mt-6 flex justify-between">
+                  <button
+                    className="flex items-center justify-center gap-2 px-6 py-2 bg-red-600 rounded-md text-white"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleDeleteWorkspaceClick()
+                    }}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="lucide lucide-trash"
+                    >
+                      <path d="M3 6h18" />
+                      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                    </svg>
+                    Delete Workspace
+                  </button>
+
                   <button
                     className="flex items-center justify-center gap-2 px-6 py-2 bg-purple-600 rounded-md text-white"
                     onClick={(e) => {
@@ -657,4 +694,6 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params }) => 
   )
 }
 
-export default WorkspaceDetailPage
+export default function Page({ params, onDeleteWorkspace }: WorkspaceDetailPageProps) {
+  return <WorkspaceDetailPage params={params} onDeleteWorkspace={onDeleteWorkspace} />
+}

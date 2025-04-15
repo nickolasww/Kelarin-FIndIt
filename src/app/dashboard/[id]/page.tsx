@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import WorkspaceSidebar from "@/app/dashboard/partials/workspaceside"
 import Chat from "@/app/dashboard/[id]/chat/page"
 import InviteModal from "@/components/modal/invitemodal"
-import Workspace from "@/app/dashboard/[id]/workspace/page"
+import WorkspaceDetailPage from "@/app/dashboard/[id]/workspace/page"
 import DeleteModal from "@/components/modal/deletemodal"
 import Header from "@/app/dashboard/partials/header"
 import StreakModal from "@/components/modal/streakmodal"
@@ -55,12 +55,12 @@ const DashboardPage = () => {
                   parsedWorkspaces.push(parsedTempWorkspace)
                   localStorage.setItem("workspaces", JSON.stringify(parsedWorkspaces))
                   sessionStorage.removeItem(`temp_workspace_${numericId}`)
-                } catch (error) {
+                } catch (error: unknown) {
                   console.error("Error parsing temporary workspace data:", error)
                 }
               }
             }
-          } catch (error) {
+          } catch (error: unknown) {
             console.error("Error parsing workspaces from localStorage:", error)
           }
         }
@@ -88,9 +88,19 @@ const DashboardPage = () => {
   }
 
   const openDeleteModal = (workspaceId?: number) => {
-    const idToDelete = workspaceId || currentWorkspaceId
-    console.log("Opening delete modal for workspace ID:", idToDelete)
+    // Pastikan workspaceId valid, jika tidak gunakan currentWorkspaceId dari URL
+    const idToDelete = workspaceId || (currentPageId ? Number.parseInt(currentPageId, 10) : undefined)
 
+    if (!idToDelete || isNaN(idToDelete)) {
+      console.error("Invalid workspace ID for deletion")
+      setStatusMessage({
+        type: "error",
+        message: "Invalid workspace ID. Cannot delete workspace.",
+      })
+      return
+    }
+
+    console.log("Opening delete modal for workspace ID:", idToDelete)
     setCurrentWorkspaceId(idToDelete)
     setIsDeleteModalOpen(true)
     setStatusMessage(null)
@@ -124,13 +134,24 @@ const DashboardPage = () => {
   }
 
   const handleDeleteWorkspace = async (workspaceId: number) => {
+    if (!workspaceId || isNaN(workspaceId)) {
+      console.error("Invalid workspace ID:", workspaceId)
+      setStatusMessage({
+        type: "error",
+        message: "Invalid workspace ID. Cannot delete workspace.",
+      })
+      setIsDeleting(false)
+      return
+    }
+
     console.log("Starting delete operation for workspace ID:", workspaceId)
     setIsDeleting(true)
 
     try {
-      console.log("Making DELETE request to:", `https://kelarin.bccdev.id/api/workspace/${workspaceId}`)
-      const token = getAuthToken()
+      const apiUrl = `https://kelarin.bccdev.id/api/workspace/${workspaceId}`
+      console.log("Making DELETE request to:", apiUrl)
 
+      const token = getAuthToken()
       if (!token) {
         console.error("No authentication token found")
         setStatusMessage({
@@ -141,7 +162,7 @@ const DashboardPage = () => {
         return
       }
 
-      const response = await fetch(`https://kelarin.bccdev.id/api/workspace/${workspaceId}`, {
+      const response = await fetch(apiUrl, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -160,6 +181,20 @@ const DashboardPage = () => {
             type: "error",
             message: "Your session has expired. Please log in again.",
           })
+        } else if (response.status === 404) {
+          // Jika workspace tidak ditemukan di server, tetap hapus dari localStorage
+          console.log("Workspace not found on server, removing from local storage")
+          removeWorkspaceFromLocalStorage(workspaceId)
+          setStatusMessage({
+            type: "success",
+            message: "Workspace removed from local storage",
+          })
+
+          setTimeout(() => {
+            closeDeleteModal()
+            router.push("/dashboard")
+          }, 1500)
+          return
         } else {
           throw new Error(`Failed to delete workspace: ${response.status} - ${errorText}`)
         }
@@ -169,27 +204,33 @@ const DashboardPage = () => {
       console.log("Workspace deleted successfully")
       setStatusMessage({ type: "success", message: "Workspace deleted successfully" })
 
-      const savedWorkspaces = localStorage.getItem("workspaces")
-      if (savedWorkspaces) {
-        try {
-          const parsedWorkspaces = JSON.parse(savedWorkspaces) as WorkspaceData[]
-          const updatedWorkspaces = parsedWorkspaces.filter((w: WorkspaceData) => w.id !== workspaceId)
-          localStorage.setItem("workspaces", JSON.stringify(updatedWorkspaces))
-          console.log("Updated localStorage after deletion")
-        } catch (error) {
-          console.error("Error updating localStorage:", error)
-        }
-      }
+      // Hapus workspace dari localStorage
+      removeWorkspaceFromLocalStorage(workspaceId)
 
       setTimeout(() => {
         closeDeleteModal()
         router.push("/dashboard")
       }, 1500)
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error deleting workspace:", error)
       setStatusMessage({ type: "error", message: "Failed to delete workspace. Please try again." })
     } finally {
       setIsDeleting(false)
+    }
+  }
+
+  // Fungsi untuk menghapus workspace dari localStorage
+  const removeWorkspaceFromLocalStorage = (workspaceId: number) => {
+    const savedWorkspaces = localStorage.getItem("workspaces")
+    if (savedWorkspaces) {
+      try {
+        const parsedWorkspaces = JSON.parse(savedWorkspaces) as WorkspaceData[]
+        const updatedWorkspaces = parsedWorkspaces.filter((w: WorkspaceData) => w.id !== workspaceId)
+        localStorage.setItem("workspaces", JSON.stringify(updatedWorkspaces))
+        console.log("Updated localStorage after deletion")
+      } catch (error: unknown) {
+        console.error("Error updating localStorage:", error)
+      }
     }
   }
 
@@ -200,7 +241,9 @@ const DashboardPage = () => {
   let contentToRender
   switch (activeContent) {
     case "workspace":
-      contentToRender = <Workspace params={{ id: currentPageId || "1" }} onDeleteWorkspace={openDeleteModal} />
+      contentToRender = (
+        <WorkspaceDetailPage params={{ id: currentPageId || "1" }} onDeleteWorkspace={openDeleteModal} />
+      )
       break
     case "chat":
       contentToRender = <Call />
@@ -209,7 +252,9 @@ const DashboardPage = () => {
       contentToRender = <Chat />
       break
     default:
-      contentToRender = <Workspace params={{ id: currentPageId || "1" }} onDeleteWorkspace={openDeleteModal} />
+      contentToRender = (
+        <WorkspaceDetailPage params={{ id: currentPageId || "1" }} onDeleteWorkspace={openDeleteModal} />
+      )
       break
   }
 
