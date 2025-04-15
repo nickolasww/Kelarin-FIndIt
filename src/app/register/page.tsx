@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react"; 
+
+import { useState } from "react";
 import Input from "@/components/input";
 import Button from "@/components/button";
 import Logo from "@/assets/icon/Logo.svg";
@@ -46,15 +47,17 @@ export default function Register() {
     setIsLoading(true);
 
     try {
+      // Attempt to register the user
       await registerUser(trimmedName, trimmedEmail, trimmedPassword);
-      router.push("/login");
-    } catch (err) {
-      console.error(err);
+      router.push("/login"); // Redirect to login page after successful registration
+    } catch (err: any) { // Explicitly typing 'err' as 'any'
+      console.error("Registration failed:", err);
       setError(err instanceof Error ? err.message : "An error occurred during registration. Please try again.");
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Reset loading state
     }
   };
+
   return (
     <section className="flex">
       <div className="hidden lg:block lg:w-[40rem]">
@@ -122,9 +125,7 @@ export default function Register() {
             <div className="flex flex-col items-center">
               <Button
                 text={isLoading ? "Signing Up..." : "Sign Up"}
-                className={`mt-6 w-full bg-purple-800 p-3 font-semibold rounded-lg text-white ${
-                  isLoading ? "opacity-70 cursor-not-allowed" : "cursor-pointer"
-                }`}
+                className={`mt-6 w-full bg-purple-800 p-3 font-semibold rounded-lg text-white ${isLoading ? "opacity-70 cursor-not-allowed" : "cursor-pointer"}`}
                 onClick={handleRegister}
                 disabled={isLoading}
               />
