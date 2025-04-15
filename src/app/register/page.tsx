@@ -19,6 +19,7 @@ export default function Register() {
   const handleRegister = async () => {
     setError("");
 
+    // Validate inputs
     if (!fullName || !email || !password) {
       setError("All fields are required!");
       return;
@@ -50,7 +51,7 @@ export default function Register() {
       // Attempt to register the user
       await registerUser(trimmedName, trimmedEmail, trimmedPassword);
       router.push("/login"); // Redirect to login page after successful registration
-    } catch (err: any) { // Explicitly typing 'err' as 'any'
+    } catch (err: unknown) {  // Changed from 'any' to 'unknown'
       console.error("Registration failed:", err);
       setError(err instanceof Error ? err.message : "An error occurred during registration. Please try again.");
     } finally {
