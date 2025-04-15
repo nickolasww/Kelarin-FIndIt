@@ -9,7 +9,6 @@ interface LoginResponse {
 
 interface RegisterResponse {
   message: string;
-  // Add other properties based on your API response
 }
 
 export async function loginUser(email: string, password: string): Promise<LoginResponse> {
@@ -33,6 +32,8 @@ export async function loginUser(email: string, password: string): Promise<LoginR
     const data: LoginResponse = await response.json();
     return data;
   } catch (err) {
+    // Log the error for debugging purposes
+    console.error("Login failed:", err);
     throw new Error("An error occurred during login. Please try again.");
   }
 }
@@ -59,6 +60,8 @@ export async function registerUser(fullName: string, email: string, password: st
     const data: RegisterResponse = await response.json();
     return data;
   } catch (err) {
+    // Log the error for debugging purposes
+    console.error("Registration failed:", err);
     throw new Error("An error occurred during registration. Please try again.");
   }
 }
