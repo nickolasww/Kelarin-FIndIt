@@ -49,7 +49,7 @@ interface AddTableData {
   image: File | null
 }
 
-const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDeleteWorkspace }) => {
+const WorkspaceDetailPageContent: React.FC<WorkspaceDetailPageProps> = ({ params, onDeleteWorkspace }) => {
   const router = useRouter()
   const [workspace, setWorkspace] = useState<Workspace | null>(null)
   const [tasks, setTasks] = useState<Record<string, Task[]>>({
@@ -694,6 +694,7 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params, onDel
   )
 }
 
-export default function Page({ params, onDeleteWorkspace }: WorkspaceDetailPageProps) {
-  return <WorkspaceDetailPage params={params} onDeleteWorkspace={onDeleteWorkspace} />
+// Ekspor default yang sesuai dengan konvensi Next.js App Router
+export default function WorkspaceDetailPage({ params, onDeleteWorkspace }: WorkspaceDetailPageProps) {
+  return <WorkspaceDetailPageContent params={params} onDeleteWorkspace={onDeleteWorkspace} />
 }

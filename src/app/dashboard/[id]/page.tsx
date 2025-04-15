@@ -183,11 +183,11 @@ const DashboardPage = () => {
           })
         } else if (response.status === 404) {
           // Jika workspace tidak ditemukan di server, tetap hapus dari localStorage
-          console.log("Workspace not found on server, removing from local storage")
+          console.log("Workspace not found on server")
           removeWorkspaceFromLocalStorage(workspaceId)
           setStatusMessage({
             type: "success",
-            message: "Workspace removed from local storage",
+            message: "Workspace removed Successfully",
           })
 
           setTimeout(() => {
