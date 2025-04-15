@@ -31,9 +31,14 @@ export async function loginUser(email: string, password: string): Promise<LoginR
 
     const data: LoginResponse = await response.json();
     return data;
-  } catch (err: any) {  // Explicitly typing 'err' as 'any' to avoid issues when it's not an instance of Error
-    console.error("Login failed:", err);
-    throw new Error(err instanceof Error ? err.message : "An error occurred during login. Please try again.");
+  } catch (err: unknown) {  // Tipekan 'err' sebagai 'unknown'
+    if (err instanceof Error) {
+      console.error("Login failed:", err);
+      throw new Error(err.message || "An error occurred during login. Please try again.");
+    } else {
+      console.error("Unexpected error:", err);
+      throw new Error("An unexpected error occurred. Please try again.");
+    }
   }
 }
 
@@ -58,9 +63,14 @@ export async function registerUser(fullName: string, email: string, password: st
 
     const data: RegisterResponse = await response.json();
     return data;
-  } catch (err: any) {  // Explicitly typing 'err' as 'any' to avoid issues when it's not an instance of Error
-    console.error("Registration failed:", err);
-    throw new Error(err instanceof Error ? err.message : "An error occurred during registration. Please try again.");
+  } catch (err: unknown) {  // Tipekan 'err' sebagai 'unknown'
+    if (err instanceof Error) {
+      console.error("Registration failed:", err);
+      throw new Error(err.message || "An error occurred during registration. Please try again.");
+    } else {
+      console.error("Unexpected error:", err);
+      throw new Error("An unexpected error occurred. Please try again.");
+    }
   }
 }
 
