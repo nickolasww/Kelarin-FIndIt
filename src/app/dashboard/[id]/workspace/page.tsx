@@ -202,18 +202,18 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params }) => 
         title: data.title || data.name || "Unnamed Workspace",
       }
       const savedWorkspaces = localStorage.getItem("workspaces")
-      let workspaces = []
+      let workspaces: Workspace[] = []
 
       if (savedWorkspaces) {
         try {
-          workspaces = JSON.parse(savedWorkspaces)
-          const existingIndex = workspaces.findIndex((w: any) => w.id === processedWorkspace.id)
+          workspaces = JSON.parse(savedWorkspaces) as Workspace[]
+          const existingIndex = workspaces.findIndex((w) => w.id === processedWorkspace.id)
           if (existingIndex >= 0) {
             workspaces[existingIndex] = processedWorkspace
           } else {
             workspaces.push(processedWorkspace)
           }
-        } catch (error) {
+        } catch (error: unknown) {
           console.error("Error parsing workspaces from localStorage:", error)
           workspaces = [processedWorkspace]
         }
@@ -249,7 +249,7 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params }) => 
       if (savedWorkspaces) {
         try {
           const parsedWorkspaces = JSON.parse(savedWorkspaces) as Workspace[]
-          foundWorkspace = parsedWorkspaces.find((w: Workspace) => w.id === workspaceId)
+          foundWorkspace = parsedWorkspaces.find((w) => w.id === workspaceId)
 
           if (foundWorkspace) {
             console.log("Found workspace in localStorage:", foundWorkspace)
@@ -263,7 +263,7 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params }) => 
             setWorkspace(foundWorkspace)
             setIsInitialized(true)
           }
-        } catch (error) {
+        } catch (error: unknown) {
           console.error("Error parsing workspaces from localStorage:", error)
         }
       }
@@ -306,7 +306,7 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params }) => 
     if (savedTasks) {
       try {
         setTasks(JSON.parse(savedTasks))
-      } catch (error) {
+      } catch (error: unknown) {
         console.error("Error parsing tasks from localStorage:", error)
         initializeEmptyTasks()
       }
@@ -318,7 +318,7 @@ const WorkspaceDetailPage: React.FC<WorkspaceDetailPageProps> = ({ params }) => 
     if (savedCustomColumns) {
       try {
         setCustomColumns(JSON.parse(savedCustomColumns))
-      } catch (error) {
+      } catch (error: unknown) {
         console.error("Error parsing custom columns from localStorage:", error)
       }
     }
