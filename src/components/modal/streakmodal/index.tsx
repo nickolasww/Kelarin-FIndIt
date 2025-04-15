@@ -3,8 +3,6 @@
 import React from "react";
 import { useState } from "react";
 import { useEffect } from "react";
-import Button from "@/components/button/index";
-import DeleteIcon from "@/assets/icon/DeleteIcon.svg";
 import Image from "next/image";
 import StreakCard from "@/components/card/streakcard";
 import StreakFire from "@/assets/images/Streakfire.svg"
@@ -12,13 +10,11 @@ import StreakFire from "@/assets/images/Streakfire.svg"
 interface StreakModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreate: (name: string) => void;
 }
 
 const StreakModal: React.FC<StreakModalProps> = ({
   isOpen,
   onClose,
-  onCreate,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -68,7 +64,7 @@ const StreakModal: React.FC<StreakModalProps> = ({
         <StreakCard
         title="Custom Avatar"
         description="Personalize your profile with a unique avatar that represents your style"
-        claimed={true}
+        claimed={false}
         />
         <StreakCard
         title="Custom Header for dashboard"

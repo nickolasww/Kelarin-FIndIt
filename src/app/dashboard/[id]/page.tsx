@@ -228,7 +228,7 @@ const DashboardPage = () => {
 
         <InviteModal isOpen={isInviteModalOpen} onClose={closeInviteModal} onInvite={handleInviteFriend} />
 
-        <StreakModal isOpen={isStreakModalOpen} onClose={closeStreakModal} onCreate={(name: string) => console.log()} />
+        <StreakModal isOpen={isStreakModalOpen} onClose={closeStreakModal}/>
       </div>
 
       {/* Status message display */}

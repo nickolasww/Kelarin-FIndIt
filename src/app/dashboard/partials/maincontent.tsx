@@ -8,6 +8,7 @@ import StreakIcon from "@/assets/icon/StreakIcon.svg"
 import Image from "next/image"
 import { IoSearch } from "react-icons/io5"
 import type { Workspace } from "@/services/workspace"
+import StreakModal from "@/components/modal/streakmodal"
 
 interface MainContentProps {
   workspaces: Workspace[]
@@ -38,6 +39,15 @@ function WorkspaceList({ workspaces, onDelete }: { workspaces: Workspace[]; onDe
 const MainContent: React.FC<MainContentProps> = ({ workspaces: initialWorkspaces, onWorkspaceDeleted }) => {
   const [searchTerm, setSearchTerm] = useState<string>("")
   const [workspaces, setWorkspaces] = useState<Workspace[]>(initialWorkspaces)
+  const [isStreakModalOpen, setIsStreakModalOpen] = useState(false)
+
+  const openStreakModal = () => {
+    setIsStreakModalOpen(true)
+  }
+
+  const closeStreakModal = () => {
+    setIsStreakModalOpen(false)
+  }
 
   useEffect(() => {
     setWorkspaces(initialWorkspaces)
@@ -85,9 +95,11 @@ const MainContent: React.FC<MainContentProps> = ({ workspaces: initialWorkspaces
         </div>
       </div>
 
-      <div className="absolute top-4 md:top-9 right-4 flex items-center gap-3">
+      <div className="absolute top-4 md:top-9 right-4 flex items-center gap-3 cursor-pointer  ">
         <span role="img" aria-label="fire" className="text-2xl">
-          <Image src={StreakIcon || "/placeholder.svg"} alt="Streak Icon" width={24} height={24} />
+          <Image src={StreakIcon || "/placeholder.svg"} alt="Streak Icon" width={24} height={24} 
+          onClick={openStreakModal}
+          />
         </span>
         <span className="text-lg font-bold mr-2">365 Days</span>
       </div>
@@ -109,6 +121,8 @@ const MainContent: React.FC<MainContentProps> = ({ workspaces: initialWorkspaces
           <p className="text-gray-500">No workspaces found.</p>
         )}
       </section>
+
+      <StreakModal isOpen={isStreakModalOpen} onClose={closeStreakModal}  />
     </div>
   )
 }
