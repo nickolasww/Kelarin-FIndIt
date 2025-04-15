@@ -63,7 +63,13 @@ export async function authenticatedFetch(url: string, options: RequestInit = {})
 
 interface Workspace {
   id: number;
-  [key: string]: any; // Allow other properties
+  name?: string;
+  title?: string;
+  description?: string;
+  collaborator?: string;
+  workspace_picture?: string | null;
+  workspace_banner?: string | null;
+  [key: string]: unknown | string | number | boolean | null | undefined;
 }
 
 export function updateLocalWorkspace(workspace: Workspace) {

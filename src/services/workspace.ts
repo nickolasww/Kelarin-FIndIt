@@ -18,6 +18,13 @@ interface CreateWorkspaceData {
   workspace_banner?: File | null;
 }
 
+// Definisikan interface untuk respons API
+interface ApiResponse {
+  success: boolean;
+  message?: string;
+  data?: unknown;
+}
+
 export async function createWorkspace(data: CreateWorkspaceData): Promise<Workspace> {
   const token = localStorage.getItem("token");
 
@@ -106,6 +113,19 @@ function createMockWorkspace(data: CreateWorkspaceData): Workspace {
   };
 }
 
+// Interface untuk data workspace dari API
+interface RawWorkspaceData {
+  id?: number;
+  name?: string;
+  title?: string;
+  purpose?: string;
+  description?: string;
+  collaborator?: string;
+  workspace_picture?: string | null;
+  workspace_banner?: string | null;
+  [key: string]: unknown;
+}
+
 export async function getWorkspaces(): Promise<Workspace[]> {
   const token = localStorage.getItem("token");
 
@@ -133,7 +153,7 @@ export async function getWorkspaces(): Promise<Workspace[]> {
         throw new Error(rawData.message || `Error: ${response.status} ${response.statusText}`);
       }
 
-      let workspacesArray: any[] = []; // Explicitly type as any[]
+      let workspacesArray: RawWorkspaceData[] = []; // Ganti any[] dengan tipe yang lebih spesifik
 
       if (rawData && typeof rawData === "object") {
         if (rawData.workspaces && Array.isArray(rawData.workspaces)) {
@@ -147,7 +167,7 @@ export async function getWorkspaces(): Promise<Workspace[]> {
 
       console.log("Extracted workspaces array:", workspacesArray);
 
-      const processedData: Workspace[] = workspacesArray.map((workspace: any) => { // Explicitly type as any
+      const processedData: Workspace[] = workspacesArray.map((workspace: RawWorkspaceData) => { // Ganti any dengan tipe yang lebih spesifik
         const formattedWorkspace: Workspace = {
           id: workspace.id || Math.floor(Math.random() * 10000),
           name: workspace.title || workspace.name || "Unnamed Workspace",
@@ -180,7 +200,7 @@ export async function getWorkspaces(): Promise<Workspace[]> {
   }
 }
 
-export async function inviteToWorkspace(workspaceId: number, email: string, role = "editor"): Promise<any> {
+export async function inviteToWorkspace(workspaceId: number, email: string, role = "editor"): Promise<ApiResponse> {
   const token = localStorage.getItem("token");
 
   if (!token) {
@@ -213,7 +233,7 @@ export async function inviteToWorkspace(workspaceId: number, email: string, role
         throw new Error(responseData.message || `Error: ${response.status} ${response.statusText}`);
       }
 
-      return responseData;
+      return responseData as ApiResponse;
     } else {
       const textResponse = await response.text();
       console.error("Non-JSON response:", textResponse);
@@ -226,7 +246,7 @@ export async function inviteToWorkspace(workspaceId: number, email: string, role
   }
 }
 
-export async function deleteWorkspace(workspaceId: number): Promise<any> {
+export async function deleteWorkspace(workspaceId: number): Promise<ApiResponse> {
   const token = localStorage.getItem("token");
 
   if (!token) {
@@ -254,7 +274,7 @@ export async function deleteWorkspace(workspaceId: number): Promise<any> {
         throw new Error(responseData.message || `Error: ${response.status} ${response.statusText}`);
       }
 
-      return responseData;
+      return responseData as ApiResponse;
     } else {
       const textResponse = await response.text();
       console.error("Non-JSON response:", textResponse);
